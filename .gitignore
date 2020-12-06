@@ -23,9 +23,6 @@ vendor/
 # OS General
 Thumbs.db
 .DS_Store
-*.swp
-*.exe
-*.exe~
 
 # project
 *.cert
@@ -34,5 +31,6 @@ Thumbs.db
 bin/
 
 # Develop tools
-/.vscode/
-/.idea/
+.vscode/
+.idea/
+*.swp
