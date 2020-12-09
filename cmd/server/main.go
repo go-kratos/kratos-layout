@@ -1,20 +1,32 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/go-kratos/kratos/v2"
 	grpctransport "github.com/go-kratos/kratos/v2/transport/grpc"
 	httptransport "github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/service-layout/api/helloworld"
 	"github.com/go-kratos/service-layout/internal/service"
 
-	"google.golang.org/grpc/examples/helloworld/helloworld"
+	_ "github.com/go-kratos/kratos/v2/encoding/json"
+	_ "github.com/go-kratos/kratos/v2/encoding/proto"
+)
+
+// go build -ldflags "-X main.Version=x.y.yz"
+var (
+	// Version is the version of the compiled software.
+	Version string
+	// Branch is current branch name the code is built off
+	Branch string
+	// Revision is the short commit hash of source tree
+	Revision string
+	// BuildDate is the date when the binary was built.
+	BuildDate string
 )
 
 func main() {
-	log.Printf("version: %s\n", Version)
+	log.Printf("service version: %s\n", Version)
 
 	// transport server
 	httpSrv := httptransport.NewServer(httptransport.WithAddress(":8000"))
@@ -23,7 +35,7 @@ func main() {
 	// register service
 	gs := service.NewGreeterService()
 	helloworld.RegisterGreeterServer(grpcSrv, gs)
-	httpSrv.Handler = newHTTPHandler(gs)
+	helloworld.RegisterGreeterHTTPServer(httpSrv, gs)
 
 	// application lifecycle
 	app := kratos.New()
@@ -34,12 +46,4 @@ func main() {
 	if err := app.Run(); err != nil {
 		log.Printf("app failed: %v\n", err)
 	}
-}
-
-func newHTTPHandler(gs *service.GreeterService) http.Handler {
-	m := http.NewServeMux()
-	m.HandleFunc("/helloworld", func(res http.ResponseWriter, req *http.Request) {
-		fmt.Fprint(res, "helloworld")
-	})
-	return m
 }

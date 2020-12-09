@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	pb "google.golang.org/grpc/examples/helloworld/helloworld"
+	pb "github.com/go-kratos/service-layout/api/helloworld"
 )
 
 // GreeterService is a greeter service.
