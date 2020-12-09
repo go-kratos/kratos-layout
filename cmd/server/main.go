@@ -44,6 +44,6 @@ func main() {
 
 	// start and wait for stop signal
 	if err := app.Run(); err != nil {
-		log.Printf("app failed: %v\n", err)
+		log.Printf("startup failed: %v\n", err)
 	}
 }
