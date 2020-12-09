@@ -14,9 +14,9 @@
 
 syntax = "proto3";
 
-option go_package = "google.golang.org/grpc/examples/helloworld/helloworld";
+option go_package = "github.com/go-kratos/service-layout/api/helloworld;helloworld";
 option java_multiple_files = true;
-option java_package = "io.grpc.examples.helloworld";
+option java_package = "dev.kratos.api.helloworld";
 option java_outer_classname = "HelloWorldProto";
 
 package helloworld;
