@@ -17,6 +17,7 @@ proto:
 
 .PHONY: build
 build:
+	mkdir bin/
 	go build -ldflags "-X main.Version=$(VERSION) -X main.Branch=$(BRANCH) -X main.Revision=$(REVISION) -X main.BuildDate=$(BUILD_DATE)" -o ./bin/ ./...
 
 .PHONY: test
