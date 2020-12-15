@@ -20,12 +20,34 @@ func RegisterGreeterHTTPServer(s http.ServiceRegistrar, srv GreeterHTTPServer) {
 	s.RegisterService(&_HTTP_Greeter_serviceDesc, srv)
 }
 
-func _HTTP_Greeter_SayHello(srv interface{}, ctx context.Context, dec func(interface{}) error) (interface{}, error) {
+func _HTTP_Greeter_SayHello(srv interface{}, ctx context.Context, m http.Marshaler) ([]byte, error) {
 	in := new(HelloRequest)
-	if err := dec(in); err != nil {
+	if err := m.Unmarshal(in.Name); err != nil {
 		return nil, err
 	}
-	return srv.(GreeterServer).SayHello(ctx, in)
+
+	var (
+		err  error
+		vars = m.PathParams()
+	)
+
+	key, ok := vars["key"]
+	if !ok {
+		return nil, http.ErrInvalidArgument("missing parameter: key")
+	}
+	in.Key = key
+
+	value, ok := vars["value"]
+	if !ok {
+		return nil, http.ErrInvalidArgument("missing parameter: value")
+	}
+	in.Value = value
+
+	reply, err := srv.(GreeterServer).SayHello(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return m.Marshal(reply.Message)
 }
 
 var _HTTP_Greeter_serviceDesc = http.ServiceDesc{
@@ -34,11 +56,9 @@ var _HTTP_Greeter_serviceDesc = http.ServiceDesc{
 	Methods: []http.MethodDesc{
 
 		{
-			Path:         "/helloworld",
-			Method:       "POST",
-			Body:         "",
-			ResponseBody: "",
-			Handler:      _HTTP_Greeter_SayHello,
+			Path:    "/helloworld/{key}/{value}",
+			Method:  "POST",
+			Handler: _HTTP_Greeter_SayHello,
 		},
 	},
 	Metadata: "api/helloworld/helloworld.proto",

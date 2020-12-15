@@ -29,8 +29,8 @@ func main() {
 	log.Printf("service version: %s\n", Version)
 
 	// transport server
-	httpSrv := httptransport.NewServer(httptransport.WithAddress(":8000"))
-	grpcSrv := grpctransport.NewServer(grpctransport.WithAddress(":9000"))
+	httpSrv := httptransport.NewServer(":8000")
+	grpcSrv := grpctransport.NewServer(":9000")
 
 	// register service
 	gs := service.NewGreeterService()

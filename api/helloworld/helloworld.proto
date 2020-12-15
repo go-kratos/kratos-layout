@@ -14,7 +14,9 @@ service Greeter {
   // Sends a greeting
   rpc SayHello (HelloRequest) returns (HelloReply)  {
         option (google.api.http) = {
-            post: "/helloworld",
+            post: "/helloworld/{key}/{value}",
+            body: "name",
+            response_body: "message",
         };
     }
 }
@@ -22,6 +24,8 @@ service Greeter {
 // The request message containing the user's name.
 message HelloRequest {
   string name = 1;
+  string key = 2;
+  string value = 3;
 }
 
 // The response message containing the greetings
