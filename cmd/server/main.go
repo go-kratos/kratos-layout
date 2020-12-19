@@ -4,10 +4,13 @@ import (
 	"log"
 
 	"github.com/go-kratos/kratos/v2"
+	servergrpc "github.com/go-kratos/kratos/v2/server/grpc"
+	serverhttp "github.com/go-kratos/kratos/v2/server/http"
 	grpctransport "github.com/go-kratos/kratos/v2/transport/grpc"
 	httptransport "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/go-kratos/service-layout/api/helloworld"
 	"github.com/go-kratos/service-layout/internal/service"
+	"google.golang.org/grpc"
 
 	_ "github.com/go-kratos/kratos/v2/encoding/json"
 	_ "github.com/go-kratos/kratos/v2/encoding/proto"
@@ -28,22 +31,26 @@ var (
 func main() {
 	log.Printf("service version: %s\n", Version)
 
-	// transport server
-	httpSrv := httptransport.NewServer(":8000")
-	grpcSrv := grpctransport.NewServer(":9000")
+	// transport
+	httpTransport := httptransport.NewServer()
+	grpcTransport := grpctransport.NewServer()
+
+	// server
+	httpServer := serverhttp.NewServer("tcp", ":8000", serverhttp.ServerHandler(httpTransport))
+	grpcServer := servergrpc.NewServer("tcp", ":9000", grpc.UnaryInterceptor(grpcTransport.ServeGRPC()))
 
 	// register service
 	gs := service.NewGreeterService()
-	helloworld.RegisterGreeterServer(grpcSrv, gs)
-	helloworld.RegisterGreeterHTTPServer(httpSrv, gs)
+	helloworld.RegisterGreeterServer(grpcServer, gs)
+	helloworld.RegisterGreeterHTTPServer(httpTransport, gs)
 
 	// application lifecycle
 	app := kratos.New()
-	app.Append(kratos.Hook{OnStart: httpSrv.Start, OnStop: httpSrv.Stop})
-	app.Append(kratos.Hook{OnStart: grpcSrv.Start, OnStop: grpcSrv.Stop})
+	app.Append(httpServer)
+	app.Append(grpcServer)
 
 	// start and wait for stop signal
 	if err := app.Run(); err != nil {
-		log.Printf("startup failed: %v\n", err)
+		log.Printf("start failed: %v\n", err)
 	}
 }
