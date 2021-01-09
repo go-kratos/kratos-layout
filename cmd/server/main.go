@@ -10,7 +10,7 @@ import (
 	serverhttp "github.com/go-kratos/kratos/v2/server/http"
 	grpctransport "github.com/go-kratos/kratos/v2/transport/grpc"
 	httptransport "github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/go-kratos/service-layout/api/helloworld"
+	pb "github.com/go-kratos/service-layout/api/helloworld/v1"
 	"github.com/go-kratos/service-layout/internal/service"
 	"google.golang.org/grpc"
 
@@ -50,8 +50,8 @@ func main() {
 
 	// register service
 	gs := service.NewGreeterService()
-	helloworld.RegisterGreeterServer(grpcServer, gs)
-	helloworld.RegisterGreeterHTTPServer(httpTransport, gs)
+	pb.RegisterGreeterServer(grpcServer, gs)
+	pb.RegisterGreeterHTTPServer(httpTransport, gs)
 
 	// application lifecycle
 	app := kratos.New()

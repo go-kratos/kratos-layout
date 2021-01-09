@@ -19,7 +19,8 @@ proto:
            --proto_path=$(GOPATH)/src \
            --go_out=paths=source_relative:. \
            --go-grpc_out=paths=source_relative:. \
-           --go-http_out=paths=source_relative:. $(PROTO_FILES)
+           --go-http_out=paths=source_relative:. \
+		   --go-errors_out=paths=source_relative:. $(PROTO_FILES)
 
 .PHONY: build
 build:

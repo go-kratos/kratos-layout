@@ -50,5 +50,5 @@ var _HTTP_Greeter_serviceDesc = http1.ServiceDesc{
 			Handler: _HTTP_Greeter_SayHello_0,
 		},
 	},
-	Metadata: "api/helloworld/helloworld.proto",
+	Metadata: "api/helloworld/v1/helloworld.proto",
 }
