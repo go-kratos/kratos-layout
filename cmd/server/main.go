@@ -1,9 +1,11 @@
 package main
 
 import (
-	"log"
+	"os"
 
 	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/log/stdlog"
 	servergrpc "github.com/go-kratos/kratos/v2/server/grpc"
 	serverhttp "github.com/go-kratos/kratos/v2/server/http"
 	grpctransport "github.com/go-kratos/kratos/v2/transport/grpc"
@@ -29,7 +31,14 @@ var (
 )
 
 func main() {
-	log.Printf("service version: %s\n", Version)
+	logger, err := stdlog.NewLogger(stdlog.Writer(os.Stdout))
+	if err != nil {
+		panic(err)
+	}
+	defer logger.Close()
+
+	log := log.NewHelper("main", logger)
+	log.Infof("version: %s", Version)
 
 	// transport
 	httpTransport := httptransport.NewServer()
@@ -51,6 +60,6 @@ func main() {
 
 	// start and wait for stop signal
 	if err := app.Run(); err != nil {
-		log.Printf("start failed: %v\n", err)
+		log.Errorf("start failed: %v\n", err)
 	}
 }
