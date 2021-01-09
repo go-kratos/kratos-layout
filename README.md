@@ -1,4 +1,4 @@
-# service-layout
+# Kratos Layout
 
 ## Install Kratos
 ```
