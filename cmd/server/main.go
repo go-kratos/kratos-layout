@@ -45,7 +45,7 @@ func main() {
 	grpcTransport := grpctransport.NewServer()
 
 	// server
-	httpServer := serverhttp.NewServer("tcp", ":8000", serverhttp.ServerHandler(httpTransport))
+	httpServer := serverhttp.NewServer("tcp", ":8000", serverhttp.Handler(httpTransport))
 	grpcServer := servergrpc.NewServer("tcp", ":9000", grpc.UnaryInterceptor(grpcTransport.Interceptor()))
 
 	// register service

@@ -95,5 +95,5 @@ var _Greeter_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/helloworld/v1/helloworld.proto",
+	Metadata: "api/helloworld/v1/greeter.proto",
 }
