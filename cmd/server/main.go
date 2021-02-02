@@ -48,7 +48,12 @@ func main() {
 	defer logger.Close()
 
 	log := log.NewHelper("main", logger)
-	log.Infof("version: %s", Version)
+	log.Infow(
+		"version", Version,
+		"branch", Branch,
+		"revision", Revision,
+		"build_date", BuildDate,
+	)
 
 	// build transport server
 	hc := new(httpconf.Server)
