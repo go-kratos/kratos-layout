@@ -54,8 +54,8 @@ func main() {
 	if err := conf.Value("grpc.server").Scan(gc); err != nil {
 		panic(err)
 	}
-	httpSrv := http.NewServer(http.Apply(hc))
-	grpcSrv := grpc.NewServer(grpc.Apply(gc))
+	httpSrv := http.NewServer(http.Apply(hc), http.Logger(logger))
+	grpcSrv := grpc.NewServer(grpc.Apply(gc), grpc.Logger(logger))
 
 	// register service
 	gs := service.NewGreeterService()
