@@ -19,17 +19,13 @@ import (
 
 // go build -ldflags "-X main.Version=x.y.z"
 var (
+	// Name is the name of the compiled software.
+	Name string
 	// Version is the version of the compiled software.
 	Version string
-	// Branch is current branch name the code is built off.
-	Branch string
-	// Revision is the short commit hash of source tree.
-	Revision string
-	// BuildDate is the date when the binary was built.
-	BuildDate string
+	// flagconf is the config flag.
+	flagconf string
 )
-
-var flagconf string
 
 func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
@@ -48,12 +44,6 @@ func main() {
 	defer logger.Close()
 
 	log := log.NewHelper("main", logger)
-	log.Infow(
-		"version", Version,
-		"branch", Branch,
-		"revision", Revision,
-		"build_date", BuildDate,
-	)
 
 	// build transport server
 	hc := new(httpconf.Server)
@@ -73,9 +63,14 @@ func main() {
 	pb.RegisterGreeterHTTPServer(httpSrv, gs)
 
 	// application lifecycle
-	app := kratos.New()
-	app.Append(httpSrv)
-	app.Append(grpcSrv)
+	app := kratos.New(
+		kratos.Name(Name),
+		kratos.Version(Version),
+		kratos.Server(
+			httpSrv,
+			grpcSrv,
+		),
+	)
 
 	// start and wait for stop signal
 	if err := app.Run(); err != nil {
