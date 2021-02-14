@@ -4,21 +4,24 @@ import (
 	"context"
 	"log"
 
-	pb "github.com/go-kratos/kratos-layout/api/helloworld/v1"
+	v1 "github.com/go-kratos/kratos-layout/api/helloworld/v1"
+	"github.com/go-kratos/kratos-layout/internal/biz"
 )
 
 // GreeterService is a greeter service.
 type GreeterService struct {
-	pb.UnimplementedGreeterServer
+	v1.UnimplementedGreeterServer
+
+	uc *biz.GreeterUsecase
 }
 
 // NewGreeterService new a greeter service.
-func NewGreeterService() *GreeterService {
-	return &GreeterService{}
+func NewGreeterService(uc *biz.GreeterUsecase) *GreeterService {
+	return &GreeterService{uc: uc}
 }
 
 // SayHello implements helloworld.GreeterServer
-func (s *GreeterService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
+func (s *GreeterService) SayHello(ctx context.Context, in *v1.HelloRequest) (*v1.HelloReply, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.HelloReply{Message: "Hello " + in.GetName()}, nil
+	return &v1.HelloReply{Message: "Hello " + in.GetName()}, nil
 }
