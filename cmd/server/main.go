@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"os"
 
 	pb "github.com/go-kratos/kratos-layout/api/helloworld/v1"
 	"github.com/go-kratos/kratos-layout/internal/data"
@@ -12,7 +11,6 @@ import (
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/log/stdlog"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"gopkg.in/yaml.v2"
@@ -38,6 +36,7 @@ func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server, greeter *servic
 	return kratos.New(
 		kratos.Name(Name),
 		kratos.Version(Version),
+		kratos.Metadata(map[string]string{}),
 		kratos.Logger(logger),
 		kratos.Server(
 			hs,
@@ -48,8 +47,7 @@ func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server, greeter *servic
 
 func main() {
 	flag.Parse()
-	logger := stdlog.NewLogger(stdlog.Writer(os.Stdout))
-	defer logger.Close()
+	logger := log.NewStdLogger()
 
 	conf := config.New(
 		config.WithSource(
@@ -58,7 +56,6 @@ func main() {
 		config.WithDecoder(func(kv *config.KeyValue, v map[string]interface{}) error {
 			return yaml.Unmarshal(kv.Value, v)
 		}),
-		config.WithLogger(logger),
 	)
 	if err := conf.Load(); err != nil {
 		panic(err)
@@ -67,7 +64,7 @@ func main() {
 	var (
 		hc server.HTTPConfig
 		gc server.GRPCConfig
-		dc data.Config
+		dc data.DBConfig
 	)
 	if err := conf.Value("http.server").Scan(&hc); err != nil {
 		panic(err)

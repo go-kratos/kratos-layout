@@ -7,8 +7,8 @@ import (
 // ProviderSet is data providers.
 var ProviderSet = wire.NewSet(NewData, NewGreeterRepo)
 
-// Config is data config.
-type Config struct {
+// DBConfig is data config.
+type DBConfig struct {
 	Driver string
 	Source string
 }
@@ -19,6 +19,6 @@ type Data struct {
 }
 
 // NewData .
-func NewData(c *Config) (*Data, error) {
+func NewData(c *DBConfig) (*Data, error) {
 	return &Data{}, nil
 }

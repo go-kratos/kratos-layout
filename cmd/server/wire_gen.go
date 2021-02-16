@@ -17,16 +17,16 @@ import (
 // Injectors from wire.go:
 
 // InitApp init kratos application.
-func InitApp(httpConfig *server.HTTPConfig, grpcConfig *server.GRPCConfig, config *data.Config, logger log.Logger) (*kratos.App, error) {
-	httpServer := server.NewHTTPServer(httpConfig, logger)
-	grpcServer := server.NewGRPCServer(grpcConfig, logger)
-	dataData, err := data.NewData(config)
+func InitApp(httpConfig *server.HTTPConfig, grpcConfig *server.GRPCConfig, dbConfig *data.DBConfig, logger log.Logger) (*kratos.App, error) {
+	httpServer := server.NewHTTPServer(httpConfig)
+	grpcServer := server.NewGRPCServer(grpcConfig)
+	dataData, err := data.NewData(dbConfig)
 	if err != nil {
 		return nil, err
 	}
 	greeterRepo := data.NewGreeterRepo(dataData, logger)
 	greeterUsecase := biz.NewGreeterUsecase(greeterRepo, logger)
-	greeterService := service.NewGreeterService(greeterUsecase)
+	greeterService := service.NewGreeterService(greeterUsecase, logger)
 	app := newApp(logger, httpServer, grpcServer, greeterService)
 	return app, nil
 }

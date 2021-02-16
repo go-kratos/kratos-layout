@@ -15,10 +15,11 @@ type GreeterRepo interface {
 
 type GreeterUsecase struct {
 	repo GreeterRepo
+	log  *log.Helper
 }
 
 func NewGreeterUsecase(repo GreeterRepo, logger log.Logger) *GreeterUsecase {
-	return &GreeterUsecase{repo: repo}
+	return &GreeterUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
 func (uc *GreeterUsecase) Create(g *Greeter) error {
