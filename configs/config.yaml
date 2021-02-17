@@ -1,11 +1,16 @@
-http:
-  server:
-    address: 0.0.0.0:8000
+server:
+  http:
+    addr: 0.0.0.0:8000
     timeout: 1s
-grpc:
-  server:
-    address: 0.0.0.0:9000
+  grpc:
+    addr: 0.0.0.0:9000
     timeout: 1s
 data:
-  driver: mysql
-  source: root:root@tcp(127.0.0.1:3306)/test
+  database:
+    driver: mysql
+    source: root:root@tcp(127.0.0.1:3306)/test
+  redis:
+    addr: 127.0.0.1:6379
+    dial_timeout: 0.1s
+    read_timeout: 0.2s
+    write_timeout: 0.2s

@@ -6,6 +6,7 @@ package main
 
 import (
 	"github.com/go-kratos/kratos-layout/internal/biz"
+	"github.com/go-kratos/kratos-layout/internal/conf"
 	"github.com/go-kratos/kratos-layout/internal/data"
 	"github.com/go-kratos/kratos-layout/internal/server"
 	"github.com/go-kratos/kratos-layout/internal/service"
@@ -14,7 +15,7 @@ import (
 	"github.com/google/wire"
 )
 
-// InitApp init kratos application.
-func InitApp(*server.HTTPConfig, *server.GRPCConfig, *data.DBConfig, log.Logger) (*kratos.App, error) {
+// initApp init kratos application.
+func initApp(*conf.Server, *conf.Data, log.Logger) (*kratos.App, error) {
 	panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
 }

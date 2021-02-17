@@ -1,17 +1,12 @@
 package data
 
 import (
+	"github.com/go-kratos/kratos-layout/internal/conf"
 	"github.com/google/wire"
 )
 
 // ProviderSet is data providers.
 var ProviderSet = wire.NewSet(NewData, NewGreeterRepo)
-
-// DBConfig is data config.
-type DBConfig struct {
-	Driver string
-	Source string
-}
 
 // Data .
 type Data struct {
@@ -19,6 +14,6 @@ type Data struct {
 }
 
 // NewData .
-func NewData(c *DBConfig) (*Data, error) {
+func NewData(c *conf.Data) (*Data, error) {
 	return &Data{}, nil
 }

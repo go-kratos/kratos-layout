@@ -7,6 +7,7 @@ package main
 
 import (
 	"github.com/go-kratos/kratos-layout/internal/biz"
+	"github.com/go-kratos/kratos-layout/internal/conf"
 	"github.com/go-kratos/kratos-layout/internal/data"
 	"github.com/go-kratos/kratos-layout/internal/server"
 	"github.com/go-kratos/kratos-layout/internal/service"
@@ -16,11 +17,11 @@ import (
 
 // Injectors from wire.go:
 
-// InitApp init kratos application.
-func InitApp(httpConfig *server.HTTPConfig, grpcConfig *server.GRPCConfig, dbConfig *data.DBConfig, logger log.Logger) (*kratos.App, error) {
-	httpServer := server.NewHTTPServer(httpConfig)
-	grpcServer := server.NewGRPCServer(grpcConfig)
-	dataData, err := data.NewData(dbConfig)
+// initApp init kratos application.
+func initApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, error) {
+	httpServer := server.NewHTTPServer(confServer)
+	grpcServer := server.NewGRPCServer(confServer)
+	dataData, err := data.NewData(confData)
 	if err != nil {
 		return nil, err
 	}

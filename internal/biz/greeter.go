@@ -19,7 +19,7 @@ type GreeterUsecase struct {
 }
 
 func NewGreeterUsecase(repo GreeterRepo, logger log.Logger) *GreeterUsecase {
-	return &GreeterUsecase{repo: repo, log: log.NewHelper(logger)}
+	return &GreeterUsecase{repo: repo, log: log.NewHelper("usecase/greeter", logger)}
 }
 
 func (uc *GreeterUsecase) Create(g *Greeter) error {

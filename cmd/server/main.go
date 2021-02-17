@@ -4,8 +4,7 @@ import (
 	"flag"
 
 	pb "github.com/go-kratos/kratos-layout/api/helloworld/v1"
-	"github.com/go-kratos/kratos-layout/internal/data"
-	"github.com/go-kratos/kratos-layout/internal/server"
+	"github.com/go-kratos/kratos-layout/internal/conf"
 	"github.com/go-kratos/kratos-layout/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
@@ -49,7 +48,7 @@ func main() {
 	flag.Parse()
 	logger := log.NewStdLogger()
 
-	conf := config.New(
+	config := config.New(
 		config.WithSource(
 			file.NewSource(flagconf),
 		),
@@ -57,26 +56,16 @@ func main() {
 			return yaml.Unmarshal(kv.Value, v)
 		}),
 	)
-	if err := conf.Load(); err != nil {
+	if err := config.Load(); err != nil {
 		panic(err)
 	}
 
-	var (
-		hc server.HTTPConfig
-		gc server.GRPCConfig
-		dc data.DBConfig
-	)
-	if err := conf.Value("http.server").Scan(&hc); err != nil {
-		panic(err)
-	}
-	if err := conf.Value("grpc.server").Scan(&gc); err != nil {
-		panic(err)
-	}
-	if err := conf.Value("data").Scan(&dc); err != nil {
+	var bc conf.Bootstrap
+	if err := config.Scan(&bc); err != nil {
 		panic(err)
 	}
 
-	app, err := InitApp(&hc, &gc, &dc, logger)
+	app, err := initApp(bc.Server, bc.Data, logger)
 	if err != nil {
 		panic(err)
 	}
