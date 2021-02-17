@@ -2,14 +2,12 @@ package server
 
 import (
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/go-kratos/kratos/v2/util/time"
 )
 
 // HTTPConfig is server config.
 type HTTPConfig struct {
-	Network string        `json:"network"`
-	Address string        `json:"address"`
-	Timeout time.Duration `json:"timeout"`
+	Network string `json:"network"`
+	Address string `json:"address"`
 }
 
 // NewHTTPServer new a HTTP server.
@@ -20,9 +18,6 @@ func NewHTTPServer(c *HTTPConfig) *http.Server {
 	}
 	if c.Address != "" {
 		opts = append(opts, http.Address(c.Address))
-	}
-	if c.Timeout != 0 {
-		opts = append(opts, http.Timeout(c.Timeout.Duration()))
 	}
 	return http.NewServer(opts...)
 }
