@@ -2,9 +2,9 @@
 
 ## Install Kratos
 ```
-go get github.com/go-kratos/kratos/cmd/kratos
-go get github.com/go-kratos/kratos/cmd/protoc-gen-go-http
-go get github.com/go-kratos/kratos/cmd/protoc-gen-go-errors
+go get github.com/go-kratos/kratos/cmd/kratos/v2
+go get github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2
+go get github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2
 
 # from source
 cd cmd/kratos && go install
