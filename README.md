@@ -26,3 +26,12 @@ make proto
 make build
 make test
 ```
+## Automated Initialization (wire)
+```
+# install wire
+go get github.com/google/wire/cmd/wire
+
+# generate wire
+cd cmd/server
+wire
+```
