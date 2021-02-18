@@ -6,9 +6,9 @@ KRATOS=$(GOPATH)/pkg/mod/github.com/go-kratos/kratos/v2@$(KRATOS_VERSION)
 
 .PHONY: init
 init:
-	go get -u github.com/go-kratos/kratos/cmd/kratos
-	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-http
-	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-errors
+	go get -u github.com/go-kratos/kratos/cmd/kratos/v2
+	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2
+	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 
