@@ -23,6 +23,10 @@ proto:
            --go-http_out=paths=source_relative:. \
            --go-errors_out=paths=source_relative:. $(PROTO_FILES)
 
+.PHONY: generate
+generate:
+	go generate ./...
+
 .PHONY: build
 build:
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
