@@ -4,14 +4,13 @@ package v1
 
 import (
 	context "context"
-	middleware "github.com/go-kratos/kratos/v2/middleware"
 	http1 "github.com/go-kratos/kratos/v2/transport/http"
 	http "net/http"
 )
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the kratos package it is being compiled against.
-// context./http./middleware.
+// context./http.
 const _ = http1.SupportPackageIsVersion1
 
 type GreeterHTTPServer interface {
@@ -22,7 +21,7 @@ func RegisterGreeterHTTPServer(s http1.ServiceRegistrar, srv GreeterHTTPServer) 
 	s.RegisterService(&_HTTP_Greeter_serviceDesc, srv)
 }
 
-func _HTTP_Greeter_SayHello_0(srv interface{}, ctx context.Context, req *http.Request, dec func(interface{}) error, m middleware.Middleware) (interface{}, error) {
+func _HTTP_Greeter_SayHello_0(srv interface{}, ctx context.Context, req *http.Request, dec func(interface{}) error) (interface{}, error) {
 	var in HelloRequest
 
 	if err := http1.BindVars(req, &in); err != nil {
@@ -33,10 +32,7 @@ func _HTTP_Greeter_SayHello_0(srv interface{}, ctx context.Context, req *http.Re
 		return nil, err
 	}
 
-	h := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GreeterServer).SayHello(ctx, &in)
-	}
-	out, err := m(h)(ctx, &in)
+	out, err := srv.(GreeterServer).SayHello(ctx, &in)
 	if err != nil {
 		return nil, err
 	}
