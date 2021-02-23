@@ -14,14 +14,7 @@ init:
 
 .PHONY: proto
 proto:
-	protoc --proto_path=. \
-           --proto_path=$(KRATOS)/api \
-           --proto_path=$(KRATOS)/third_party \
-           --proto_path=$(GOPATH)/src \
-           --go_out=paths=source_relative:. \
-           --go-grpc_out=paths=source_relative:. \
-           --go-http_out=paths=source_relative:. \
-           --go-errors_out=paths=source_relative:. $(PROTO_FILES)
+	$(call build_proto_files, $(PROTO_FILES))
 
 .PHONY: generate
 generate:
@@ -34,3 +27,19 @@ build:
 .PHONY: test
 test:
 	go test -v ./... -cover
+
+define build_proto_files
+@for file in $(1); do \
+( 	echo "---\nbuilding: $$file" && \
+ 	protoc --proto_path=. \
+  		--proto_path=$(shell dirname $(shell pwd)) \
+  		--proto_path=$(KRATOS)/api \
+  		--proto_path=$(KRATOS)/third_party \
+  		--proto_path=$(GOPATH)/src \
+  		--proto_path=$(GOBIN) \
+  		--go_out=paths=source_relative:. \
+  		--go-grpc_out=paths=source_relative:. \
+  		--go-http_out=paths=source_relative:. \
+  		--go-errors_out=paths=source_relative:. $$file)  \
+done;
+endef
