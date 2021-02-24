@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"os"
 
 	pb "github.com/go-kratos/kratos-layout/api/helloworld/v1"
 	"github.com/go-kratos/kratos-layout/internal/conf"
@@ -46,9 +47,9 @@ func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server, greeter *servic
 
 func main() {
 	flag.Parse()
-	logger := log.NewStdLogger()
+	logger := log.NewStdLogger(os.Stdout)
 
-	config := config.New(
+	c := config.New(
 		config.WithSource(
 			file.NewSource(flagconf),
 		),
@@ -56,12 +57,12 @@ func main() {
 			return yaml.Unmarshal(kv.Value, v)
 		}),
 	)
-	if err := config.Load(); err != nil {
+	if err := c.Load(); err != nil {
 		panic(err)
 	}
 
 	var bc conf.Bootstrap
-	if err := config.Scan(&bc); err != nil {
+	if err := c.Scan(&bc); err != nil {
 		panic(err)
 	}
 

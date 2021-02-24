@@ -24,11 +24,11 @@ func RegisterGreeterHTTPServer(s http1.ServiceRegistrar, srv GreeterHTTPServer) 
 func _HTTP_Greeter_SayHello_0(srv interface{}, ctx context.Context, req *http.Request, dec func(interface{}) error) (interface{}, error) {
 	var in HelloRequest
 
-	if err := http1.BindVars(req, &in); err != nil {
+	if err := http1.BindForm(req, &in); err != nil {
 		return nil, err
 	}
 
-	if err := http1.BindForm(req, &in); err != nil {
+	if err := http1.BindVars(req, &in); err != nil {
 		return nil, err
 	}
 
@@ -49,5 +49,5 @@ var _HTTP_Greeter_serviceDesc = http1.ServiceDesc{
 			Handler: _HTTP_Greeter_SayHello_0,
 		},
 	},
-	Metadata: "api/helloworld/v1/greeter.proto",
+	Metadata: "greeter.proto",
 }
