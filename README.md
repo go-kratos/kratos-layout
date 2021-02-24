@@ -16,9 +16,8 @@ kratos proto add api/helloworld/helloworld.proto
 kratos proto server api/helloworld/helloworld.proto -t internal/service
 
 go generate ./...
-cd cmd/helloworld
-go build
-./helloworld
+go build -o ./bin/ ./...
+./bin/helloworld -conf configs/
 ```
 ## Automated Initialization (wire)
 ```
