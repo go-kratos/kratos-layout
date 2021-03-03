@@ -1,7 +1,9 @@
 package server
 
 import (
+	pb "github.com/go-kratos/kratos-layout/api/helloworld/v1"
 	"github.com/go-kratos/kratos-layout/internal/conf"
+	"github.com/go-kratos/kratos-layout/internal/service"
 
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
@@ -11,16 +13,8 @@ import (
 )
 
 // NewHTTPServer new a HTTP server.
-func NewHTTPServer(c *conf.Server) *http.Server {
-	var opts = []http.ServerOption{
-		http.Middleware(
-			middleware.Chain(
-				recovery.Recovery(),
-				tracing.Server(),
-				logging.Server(),
-			),
-		),
-	}
+func NewHTTPServer(c *conf.Server, greeter *service.GreeterService) *http.Server {
+	var opts = []http.ServerOption{}
 	if c.Http.Network != "" {
 		opts = append(opts, http.Network(c.Http.Network))
 	}
@@ -30,5 +24,14 @@ func NewHTTPServer(c *conf.Server) *http.Server {
 	if c.Http.Timeout != nil {
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
-	return http.NewServer(opts...)
+	srv := http.NewServer(opts...)
+	m := http.Middleware(
+		middleware.Chain(
+			recovery.Recovery(),
+			tracing.Server(),
+			logging.Server(),
+		),
+	)
+	srv.HanldePrefix("/", pb.NewGreeterHandler(greeter, m))
+	return srv
 }

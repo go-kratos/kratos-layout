@@ -3,9 +3,10 @@ module github.com/go-kratos/kratos-layout
 go 1.15
 
 require (
-	github.com/go-kratos/kratos/v2 v2.0.0-alpha4
+	github.com/go-kratos/kratos/v2 v2.0.0-alpha5
 	github.com/golang/protobuf v1.4.3
 	github.com/google/wire v0.5.0
+	github.com/gorilla/mux v1.8.0
 	github.com/imdario/mergo v0.3.11 // indirect
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9 // indirect
