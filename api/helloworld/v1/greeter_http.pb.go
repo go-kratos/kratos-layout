@@ -32,16 +32,16 @@ func NewGreeterHandler(srv GreeterHandler, opts ...http1.HandleOption) http.Hand
 
 	r.HandleFunc("/helloworld/{name}", func(w http.ResponseWriter, r *http.Request) {
 		var in HelloRequest
+		if err := h.Decode(r, &in); err != nil {
+			h.Error(w, r, err)
+			return
+		}
 
 		if err := binding.MapProto(&in, mux.Vars(r)); err != nil {
 			h.Error(w, r, err)
 			return
 		}
 
-		if err := h.Decode(r, &in); err != nil {
-			h.Error(w, r, err)
-			return
-		}
 		next := func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.SayHello(ctx, req.(*HelloRequest))
 		}
@@ -53,7 +53,8 @@ func NewGreeterHandler(srv GreeterHandler, opts ...http1.HandleOption) http.Hand
 			h.Error(w, r, err)
 			return
 		}
-		if err := h.Encode(w, r, out); err != nil {
+		reply := out.(*HelloReply)
+		if err := h.Encode(w, r, reply); err != nil {
 			h.Error(w, r, err)
 		}
 	}).Methods("GET")
