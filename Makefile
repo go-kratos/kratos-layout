@@ -62,7 +62,7 @@ all:
 	make http;
 	make generate;
 	make build;
-	make test
+	make test;
 
 # show help
 help:
