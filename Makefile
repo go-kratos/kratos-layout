@@ -11,7 +11,6 @@ init:
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2
-	go get -u github.com/envoyproxy/protoc-gen-validate
 	go get -u github.com/google/wire/cmd/wire
 
 .PHONY: grpc
@@ -21,7 +20,6 @@ grpc:
            --proto_path=$(KRATOS)/api \
            --proto_path=$(KRATOS)/third_party \
            --proto_path=$(GOPATH)/src \
-           --validate_out="lang=go",paths=source_relative:. \
            --go_out=paths=source_relative:. \
            --go-grpc_out=paths=source_relative:. \
            --go-errors_out=paths=source_relative:. \
@@ -34,7 +32,6 @@ http:
            --proto_path=$(KRATOS)/api \
            --proto_path=$(KRATOS)/third_party \
            --proto_path=$(GOPATH)/src \
-           --validate_out="lang=go",paths=source_relative:. \
            --go_out=paths=source_relative:. \
            --go-http_out=paths=source_relative:. \
            --go-errors_out=paths=source_relative:. \
