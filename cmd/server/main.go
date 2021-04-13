@@ -20,12 +20,12 @@ var (
 	Name string
 	// Version is the version of the compiled software.
 	Version string
-	// flagconf is the config flag.
-	flagconf string
+	// flagConf is the config flag.
+	flagConf string
 )
 
 func init() {
-	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
+	flag.StringVar(&flagConf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
 func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server) *kratos.App {
@@ -47,7 +47,7 @@ func main() {
 
 	c := config.New(
 		config.WithSource(
-			file.NewSource(flagconf),
+			file.NewSource(flagConf),
 		),
 		config.WithDecoder(func(kv *config.KeyValue, v map[string]interface{}) error {
 			return yaml.Unmarshal(kv.Value, v)
@@ -68,7 +68,9 @@ func main() {
 	}
 
 	// start and wait for stop signal
-	if err := app.Run(); err != nil {
+	ctx, done := kratos.OnInterrupt()
+	if err := app.Run(ctx); err != nil {
 		panic(err)
 	}
+	done()
 }
