@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package helloworld.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/helloworld/v1;v1";
+option java_multiple_files = true;
+option java_package = "com.github.kratos.helloworld.errors";
+option objc_class_prefix = "KratosHelloworldErrors";
+
+enum ErrorReason {
+  ERROR_REASON_UNSPECIFIED = 0;
+
+  USER_NOT_FOUND = 1;
+}

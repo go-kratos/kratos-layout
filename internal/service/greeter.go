@@ -26,7 +26,7 @@ func NewGreeterService(uc *biz.GreeterUsecase, logger log.Logger) *GreeterServic
 func (s *GreeterService) SayHello(ctx context.Context, in *v1.HelloRequest) (*v1.HelloReply, error) {
 	s.log.Infof("SayHello Received: %v", in.GetName())
 	if in.GetName() == "error" {
-		return nil, errors.NotFound("ErrorReason", in.GetName())
+		return nil, errors.NotFound("greeter", v1.ErrorReason_USER_NOT_FOUND.String(), in.GetName())
 	}
 	return &v1.HelloReply{Message: "Hello " + in.GetName()}, nil
 }

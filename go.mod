@@ -3,7 +3,7 @@ module github.com/go-kratos/kratos-layout
 go 1.15
 
 require (
-	github.com/go-kratos/kratos/v2 v2.0.0-beta3
+	github.com/go-kratos/kratos/v2 v2.0.0-beta4
 	github.com/google/wire v0.5.0
 	github.com/gorilla/mux v1.8.0
 	github.com/imdario/mergo v0.3.11 // indirect
