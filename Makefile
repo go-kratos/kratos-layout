@@ -17,9 +17,7 @@ init:
 # generate grpc code
 grpc:
 	protoc --proto_path=. \
-           --proto_path=$(KRATOS)/api \
            --proto_path=$(KRATOS)/third_party \
-           --proto_path=$(GOPATH)/src \
            --go_out=paths=source_relative:. \
            --go-grpc_out=paths=source_relative:. \
            $(PROTO_FILES)
@@ -28,9 +26,7 @@ grpc:
 # generate http code
 http:
 	protoc --proto_path=. \
-           --proto_path=$(KRATOS)/api \
            --proto_path=$(KRATOS)/third_party \
-           --proto_path=$(GOPATH)/src \
            --go_out=paths=source_relative:. \
            --go-http_out=paths=source_relative:. \
            $(PROTO_FILES)
