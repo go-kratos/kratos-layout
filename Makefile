@@ -11,6 +11,7 @@ init:
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2
+	go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
 	go get -u github.com/google/wire/cmd/wire
 
 .PHONY: grpc
@@ -31,6 +32,15 @@ http:
            --go-http_out=paths=source_relative:. \
            $(PROTO_FILES)
 
+.PHONY: swagger
+# generate swagger file
+swagger:
+	protoc --proto_path=. \
+		--proto_path=$(KRATOS)/third_party \
+		--openapiv2_out . \
+		--openapiv2_opt logtostderr=true \
+		$(API_PROTO_FILES)
+		
 .PHONY: generate
 # generate client code
 generate:
