@@ -20,13 +20,13 @@ type GreeterUsecase struct {
 }
 
 func NewGreeterUsecase(repo GreeterRepo, logger log.Logger) *GreeterUsecase {
-	return &GreeterUsecase{repo: repo, log: log.NewHelper("usecase/greeter", logger)}
+	return &GreeterUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *GreeterUsecase) Create(ctx context.Context,g *Greeter) error {
-	return uc.repo.CreateGreeter(ctx,g)
+func (uc *GreeterUsecase) Create(ctx context.Context, g *Greeter) error {
+	return uc.repo.CreateGreeter(ctx, g)
 }
 
-func (uc *GreeterUsecase) Update(ctx context.Context,g *Greeter) error {
-	return uc.repo.UpdateGreeter(ctx,g)
+func (uc *GreeterUsecase) Update(ctx context.Context, g *Greeter) error {
+	return uc.repo.UpdateGreeter(ctx, g)
 }
