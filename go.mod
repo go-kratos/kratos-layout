@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-kratos/kratos/v2 v2.0.0-beta4.0.20210525070153-66412031fdf4
+	github.com/go-kratos/kratos/v2 v2.0.0-20210526062343-eb958b2093f8
 	github.com/golang/protobuf v1.5.2
 	github.com/google/wire v0.5.0
 	github.com/gorilla/mux v1.8.0
