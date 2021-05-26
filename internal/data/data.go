@@ -17,7 +17,7 @@ type Data struct {
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {
-		logger.Log("msg", "closing the data resources")
+		logger.Log(log.LevelInfo, "closing the data resources")
 	}
 	return &Data{}, cleanup, nil
 }
