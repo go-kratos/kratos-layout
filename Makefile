@@ -19,33 +19,33 @@ init:
 # generate grpc code
 grpc:
 	protoc --proto_path=. \
-           --proto_path=$(KRATOS)/third_party \
-           --go_out=paths=source_relative:. \
-           --go-grpc_out=paths=source_relative:. \
-           $(API_PROTO_FILES)
+		--proto_path=./third_party \
+		--go_out=paths=source_relative:. \
+		--go-grpc_out=paths=source_relative:. \
+		$(API_PROTO_FILES)
 
 .PHONY: http
 # generate http code
 http:
 	protoc --proto_path=. \
-           --proto_path=$(KRATOS)/third_party \
-           --go_out=paths=source_relative:. \
-           --go-http_out=paths=source_relative:. \
-           $(API_PROTO_FILES)
+		--proto_path=./third_party \
+		--go_out=paths=source_relative:. \
+		--go-http_out=paths=source_relative:. \
+		$(API_PROTO_FILES)
 
 .PHONY: proto
 # generate internal proto
 proto:
 	protoc --proto_path=. \
-           --proto_path=$(KRATOS)/third_party \
-           --go_out=paths=source_relative:. \
-           $(INTERNAL_PROTO_FILES)
+		--proto_path=./third_party \
+ 		--go_out=paths=source_relative:. \
+		$(INTERNAL_PROTO_FILES)
 
 .PHONY: swagger
 # generate swagger file
 swagger:
 	protoc --proto_path=. \
-		--proto_path=$(KRATOS)/third_party \
+		--proto_path=./third_party \
 		--openapiv2_out . \
 		--openapiv2_opt logtostderr=true \
 		$(API_PROTO_FILES)
@@ -63,7 +63,7 @@ build:
 .PHONY: test
 # test
 test:
-	go test -v ./... -cover
+	go test -v -cover ./...
 
 .PHONY: all
 # generate all

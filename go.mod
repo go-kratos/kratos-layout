@@ -11,7 +11,6 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea // indirect
-	golang.org/x/tools v0.1.0 // indirect
 	google.golang.org/genproto v0.0.0-20210524171403-669157292da3
 	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
