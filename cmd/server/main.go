@@ -43,8 +43,12 @@ func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server) *kratos.App {
 
 func main() {
 	flag.Parse()
-	logger := log.NewStdLogger(os.Stdout)
-
+	logger := log.With(log.NewStdLogger(os.Stdout),
+		"service.name", Name,
+		"service.version", Version,
+		"ts", log.DefaultTimestamp,
+		"caller", log.DefaultCaller,
+	)
 	c := config.New(
 		config.WithSource(
 			file.NewSource(flagconf),
