@@ -63,7 +63,7 @@ build:
 .PHONY: test
 # test
 test:
-	go test -v ./... -cover
+	go test -v -cover ./...
 
 .PHONY: all
 # generate all
