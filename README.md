@@ -7,17 +7,17 @@ go get -u github.com/go-kratos/kratos/cmd/kratos/v2@latest
 ## Create a service
 ```
 # create a template project
-kratos new helloworld
+kratos new server
 
-cd helloworld
+cd server
 # Add a proto template
-kratos proto add api/helloworld/helloworld.proto
+kratos proto add api/server/server.proto
 # Generate the source code of service by proto file
-kratos proto server api/helloworld/helloworld.proto -t internal/service
+kratos proto server api/server/server.proto -t internal/service
 
 go generate ./...
 go build -o ./bin/ ./...
-./bin/helloworld -conf ./configs
+./bin/server -conf ./configs
 ```
 ## Automated Initialization (wire)
 ```
