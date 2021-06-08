@@ -12,6 +12,7 @@ init:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2
+	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2
 	go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
 	go get -u github.com/google/wire/cmd/wire
 
@@ -32,6 +33,16 @@ http:
 		--go_out=paths=source_relative:. \
 		--go-http_out=paths=source_relative:. \
 		$(API_PROTO_FILES)
+
+.PHONY: errors
+# generate errors code
+errors:
+	protoc --proto_path=. \
+           --proto_path=$(KRATOS)/third_party \
+           --proto_path=$(KRATOS)/errors \
+           --go_out=paths=source_relative:. \
+           --go-errors_out=paths=source_relative:. \
+           $(API_PROTO_FILES)
 
 .PHONY: proto
 # generate internal proto
@@ -72,6 +83,7 @@ all:
 	make generate;
 	make grpc;
 	make http;
+	make errors;
 	make proto;
 	make swagger;
 	make build;
