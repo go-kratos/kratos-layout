@@ -13,5 +13,5 @@ enum Error {
   option (errors.default_code) = 500;
 
   USER_NOT_FOUND = 0[(errors.code) = 404];
-  ContentMissing = 1;
+  CONTENT_MISSING = 1;
 }
