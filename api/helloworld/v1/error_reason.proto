@@ -9,9 +9,9 @@ option java_multiple_files = true;
 option java_package = "blog.v1.errors";
 option objc_class_prefix = "APIBlogErrors";
 
-enum Error {
+enum ErrorReason {
   option (errors.default_code) = 500;
 
-  USER_NOT_FOUND = 0[(errors.code) = 404];
-  CONTENT_MISSING = 1;
+  USER_NOT_FOUND = 0 [(errors.code) = 404];
+  CONTENT_MISSING = 1 [(errors.code) = 400];;
 }
