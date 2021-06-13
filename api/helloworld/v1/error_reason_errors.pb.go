@@ -19,12 +19,3 @@ func IsUserNotFound(err error) bool {
 func ErrorUserNotFound(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, Error_USER_NOT_FOUND.String(), fmt.Sprintf(format, args...))
 }
-
-func IsContentMissing(err error) bool {
-	e := errors.FromError(err)
-	return e.Reason == Error_CONTENT_MISSING.String() && e.Code == 500
-}
-
-func ErrorContentMissing(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, Error_CONTENT_MISSING.String(), fmt.Sprintf(format, args...))
-}
