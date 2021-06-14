@@ -13,9 +13,18 @@ const _ = errors.SupportPackageIsVersion1
 
 func IsUserNotFound(err error) bool {
 	e := errors.FromError(err)
-	return e.Reason == Error_USER_NOT_FOUND.String() && e.Code == 404
+	return e.Reason == ErrorReason_USER_NOT_FOUND.String() && e.Code == 404
 }
 
 func ErrorUserNotFound(format string, args ...interface{}) *errors.Error {
-	return errors.New(404, Error_USER_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+	return errors.New(404, ErrorReason_USER_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+func IsContentMissing(err error) bool {
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_CONTENT_MISSING.String() && e.Code == 400
+}
+
+func ErrorContentMissing(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ErrorReason_CONTENT_MISSING.String(), fmt.Sprintf(format, args...))
 }
