@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-kratos/kratos/v2 v2.0.0-rc5
+	github.com/go-kratos/kratos/v2 v2.0.0-rc6
 	github.com/google/wire v0.5.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
