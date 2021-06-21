@@ -29,6 +29,8 @@ make init
 make swagger
 # Generate API validator files by proto file
 make validate
+# Generate all files
+make all
 ```
 ## Automated Initialization (wire)
 ```
