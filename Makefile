@@ -65,7 +65,7 @@ proto:
 # generate swagger file
 swagger:
 	protoc --proto_path=. \
-		--proto_path=./third_party \
+		--proto_path=$(KRATOS)/third_party \
 		--openapiv2_out . \
 		--openapiv2_opt logtostderr=true \
 		--openapiv2_opt json_names_for_fields=false \
