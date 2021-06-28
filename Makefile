@@ -61,6 +61,15 @@ proto:
  		--go_out=paths=source_relative:. \
 		$(INTERNAL_PROTO_FILES)
 
+.PHONY: api
+# generate api proto
+api:
+	protoc --proto_path=. \
+		--proto_path=./third_party \
+ 		--go_out=paths=source_relative:. \
+		$(API_PROTO_FILES)
+
+
 .PHONY: swagger
 # generate swagger file
 swagger:
@@ -95,9 +104,11 @@ all:
 	make errors;
 	make validate;
 	make proto;
+	make api;
 	make swagger;
 	make build;
 	make test;
+
 
 # show help
 help:
