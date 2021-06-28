@@ -69,7 +69,6 @@ api:
  		--go_out=paths=source_relative:. \
 		$(API_PROTO_FILES)
 
-
 .PHONY: swagger
 # generate swagger file
 swagger:
