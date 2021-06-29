@@ -13,27 +13,6 @@ init:
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2
-	go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
-	go get -u github.com/google/wire/cmd/wire
-	go get -u github.com/envoyproxy/protoc-gen-validate
-
-.PHONY: grpc
-# generate grpc code
-grpc:
-	protoc --proto_path=. \
-		--proto_path=./third_party \
-		--go_out=paths=source_relative:. \
-		--go-grpc_out=paths=source_relative:. \
-		$(API_PROTO_FILES)
-
-.PHONY: http
-# generate http code
-http:
-	protoc --proto_path=. \
-		--proto_path=./third_party \
-		--go_out=paths=source_relative:. \
-		--go-http_out=paths=source_relative:. \
-		$(API_PROTO_FILES)
 
 .PHONY: errors
 # generate errors code
@@ -44,18 +23,9 @@ errors:
            --go-errors_out=paths=source_relative:. \
            $(API_PROTO_FILES)
 
-.PHONY: validate
-# generate validate code
-validate:
-	protoc --proto_path=. \
-           --proto_path=./third_party \
-           --go_out=paths=source_relative:. \
-           --validate_out=paths=source_relative,lang=go:. \
-           $(API_PROTO_FILES)
-
-.PHONY: proto
+.PHONY: config
 # generate internal proto
-proto:
+config:
 	protoc --proto_path=. \
 		--proto_path=./third_party \
  		--go_out=paths=source_relative:. \
@@ -67,47 +37,16 @@ api:
 	protoc --proto_path=. \
 		--proto_path=./third_party \
  		--go_out=paths=source_relative:. \
+ 		--go-http_out=paths=source_relative:. \
+ 		--go-grpc_out=paths=source_relative:. \
 		$(API_PROTO_FILES)
-
-.PHONY: swagger
-# generate swagger file
-swagger:
-	protoc --proto_path=. \
-		--proto_path=./third_party \
-		--openapiv2_out . \
-		--openapiv2_opt logtostderr=true \
-		--openapiv2_opt json_names_for_fields=false \
-		$(API_PROTO_FILES)
-
-.PHONY: generate
-# generate client code
-generate:
-	go generate ./...
-
-.PHONY: build
-# build
-build:
-	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
-
-.PHONY: test
-# test
-test:
-	go test -v -cover ./...
 
 .PHONY: all
 # generate all
 all:
-	make generate;
-	make grpc;
-	make http;
 	make errors;
-	make validate;
-	make proto;
+	make config;
 	make api;
-	make swagger;
-	make build;
-	make test;
-
 
 # show help
 help:
