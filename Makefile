@@ -43,6 +43,11 @@ api:
                --openapiv2_out . \
 	       $(API_PROTO_FILES)
 
+.PHONY: build
+# build
+build:
+	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
+
 .PHONY: all
 # generate all
 all:
