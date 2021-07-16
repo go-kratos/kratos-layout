@@ -3,7 +3,6 @@ syntax = "proto3";
 package api.helloworld.v1;
 import "errors/errors.proto";
 
-// 多语言特定包名，用于源代码引用
 option go_package = "github.com/go-kratos/kratos-layout/api/helloworld/v1;v1";
 option java_multiple_files = true;
 option java_package = "helloworld.v1.errors";
