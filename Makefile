@@ -43,6 +43,16 @@ api:
                --openapiv2_out . \
 	       $(API_PROTO_FILES)
 
+.PHONY: swagger
+# generate api swagger.json
+swagger:
+	protoc --proto_path=. \
+            --proto_path=./third_party \
+            --openapiv2_out . \
+            --openapiv2_opt logtostderr=true \
+            --openapiv2_opt json_names_for_fields=false \
+            $(API_PROTO_FILES)
+
 .PHONY: build
 # build
 build:
@@ -54,6 +64,7 @@ all:
 	make api;
 	make errors;
 	make config;
+	make swagger;
 
 # show help
 help:
