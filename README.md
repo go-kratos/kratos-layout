@@ -27,7 +27,7 @@ go build -o ./bin/ ./...
 make init
 # Generate API swagger json files by proto file
 make swagger
-# Generate API files (include: pb.go, http, grpc, validate) by proto file
+# Generate API files (include: pb.go, http, grpc, validate, swagger) by proto file
 make api
 # Generate all files
 make all
