@@ -2,6 +2,7 @@ GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
 INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
 API_PROTO_FILES=$(shell find api -name *.proto)
+MODULE="github.com/go-kratos/kratos-layout"
 
 .PHONY: init
 # init env
@@ -19,8 +20,8 @@ init:
 errors:
 	protoc --proto_path=. \
                --proto_path=./third_party \
-               --go_out=paths=source_relative:. \
-               --go-errors_out=paths=source_relative:. \
+               --go_out=paths=import:. \
+               --go-errors_out=paths=import,module=$(MODULE):. \
                $(API_PROTO_FILES)
 
 .PHONY: config
@@ -28,7 +29,7 @@ errors:
 config:
 	protoc --proto_path=. \
 	       --proto_path=./third_party \
- 	       --go_out=paths=source_relative:. \
+ 	       --go_out=paths=import,module=$(MODULE):. \
 	       $(INTERNAL_PROTO_FILES)
 
 .PHONY: api
@@ -36,11 +37,11 @@ config:
 api:
 	protoc --proto_path=. \
 	       --proto_path=./third_party \
- 	       --go_out=paths=source_relative:. \
- 	       --go-http_out=paths=source_relative:. \
- 	       --go-grpc_out=paths=source_relative:. \
-               --validate_out=paths=source_relative,lang=go:. \
-               --openapiv2_out . \
+ 	       --go_out=paths=import,module=$(MODULE):. \
+ 	       --go-http_out=paths=import,module=$(MODULE):. \
+ 	       --go-grpc_out=paths=import,module=$(MODULE):. \
+           --validate_out=paths=import,lang=go,module=$(MODULE):. \
+           --openapiv2_out=. \
 	       $(API_PROTO_FILES)
 
 .PHONY: build
@@ -51,9 +52,7 @@ build:
 .PHONY: all
 # generate all
 all:
-	make api;
-	make errors;
-	make config;
+	make api errors config
 
 # show help
 help:

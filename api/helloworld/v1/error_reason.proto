@@ -3,7 +3,7 @@ syntax = "proto3";
 package api.helloworld.v1;
 import "errors/errors.proto";
 
-option go_package = "github.com/go-kratos/kratos-layout/api/helloworld/v1;v1";
+option go_package = "github.com/go-kratos/kratos-layout/internal/api/helloworld/v1;v1";
 option java_multiple_files = true;
 option java_package = "helloworld.v1.errors";
 option objc_class_prefix = "APIHelloworldErrors";
