@@ -3,6 +3,7 @@ VERSION=$(shell git describe --tags --always)
 INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
 API_PROTO_FILES=$(shell find api -name *.proto)
 MODULE=$(shell cat go.mod | grep module | head -n 1 | awk -F ' ' '{print $$2}')
+API_PROTOC_OUTPUT_PATH=internal
 
 .PHONY: init
 # init env
@@ -20,8 +21,8 @@ init:
 errors:
 	protoc --proto_path=. \
                --proto_path=./third_party \
-               --go_out=paths=import:. \
-               --go-errors_out=paths=import,module=$(MODULE):. \
+               --go_out=paths=import,module=$(MODULE):$(API_PROTOC_OUTPUT_PATH) \
+               --go-errors_out=paths=import,module=$(MODULE):$(API_PROTOC_OUTPUT_PATH) \
                $(API_PROTO_FILES)
 
 .PHONY: config
@@ -37,10 +38,10 @@ config:
 api:
 	protoc --proto_path=. \
 	       --proto_path=./third_party \
- 	       --go_out=paths=import,module=$(MODULE):. \
- 	       --go-http_out=paths=import,module=$(MODULE):. \
- 	       --go-grpc_out=paths=import,module=$(MODULE):. \
-           --validate_out=paths=import,lang=go,module=$(MODULE):. \
+ 	       --go_out=paths=import,module=$(MODULE):$(API_PROTOC_OUTPUT_PATH) \
+ 	       --go-http_out=paths=import,module=$(MODULE):$(API_PROTOC_OUTPUT_PATH) \
+ 	       --go-grpc_out=paths=import,module=$(MODULE):$(API_PROTOC_OUTPUT_PATH) \
+           --validate_out=paths=import,lang=go,module=$(MODULE):$(API_PROTOC_OUTPUT_PATH) \
            --openapiv2_out=. \
 	       $(API_PROTO_FILES)
 
