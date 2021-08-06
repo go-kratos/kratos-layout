@@ -13,8 +13,6 @@ init:
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2
-	go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
-	go get -u github.com/envoyproxy/protoc-gen-validate
 
 .PHONY: errors
 # generate errors code
@@ -41,8 +39,6 @@ api:
  	       --go_out=paths=import,module=$(MODULE):$(API_PROTOC_OUTPUT_PATH) \
  	       --go-http_out=paths=import,module=$(MODULE):$(API_PROTOC_OUTPUT_PATH) \
  	       --go-grpc_out=paths=import,module=$(MODULE):$(API_PROTOC_OUTPUT_PATH) \
-           --validate_out=paths=import,lang=go,module=$(MODULE):$(API_PROTOC_OUTPUT_PATH) \
-           --openapiv2_out=. \
 	       $(API_PROTO_FILES)
 
 .PHONY: build
