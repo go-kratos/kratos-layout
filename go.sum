@@ -19,8 +19,8 @@ github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7
 github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
-github.com/go-kratos/kratos/v2 v2.0.4 h1:+4Y0bK18EB6sucbFoNs3pKW2neuUd6+7ZzrmPcvar7A=
-github.com/go-kratos/kratos/v2 v2.0.4/go.mod h1:pl/qF1XBL9qQfu7+kEVV+Cg7Zx1u8jIiWxVpaLx6X5k=
+github.com/go-kratos/kratos/v2 v2.0.5 h1:PiXoXLNs8CsCdTtYIS8NQQQp1ZVwE2o/gKJlkAbBjfs=
+github.com/go-kratos/kratos/v2 v2.0.5/go.mod h1:pl/qF1XBL9qQfu7+kEVV+Cg7Zx1u8jIiWxVpaLx6X5k=
 github.com/go-playground/assert/v2 v2.0.1 h1:MsBgLAaY856+nPRTKrp3/OZK38U/wa0CcBYNjji3q3A=
 github.com/go-playground/assert/v2 v2.0.1/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
 github.com/go-playground/form/v4 v4.2.0 h1:N1wh+Goz61e6w66vo8vJkQt+uwZSoLz50kZPJWR8eic=
