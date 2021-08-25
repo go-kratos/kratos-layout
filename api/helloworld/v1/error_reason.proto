@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package api.helloworld.v1;
+package helloworld.v1;
 import "errors/errors.proto";
 
 option go_package = "github.com/go-kratos/kratos-layout/api/helloworld/v1;v1";
