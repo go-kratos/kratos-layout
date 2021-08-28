@@ -48,12 +48,18 @@ api:
 build:
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
 
+.PHONY: generate
+# generate
+generate:
+	go generate ./...
+
 .PHONY: all
 # generate all
 all:
 	make api;
 	make errors;
 	make config;
+	make generate;
 
 # show help
 help:
