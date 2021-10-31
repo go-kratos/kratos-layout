@@ -9,6 +9,7 @@ init:
 	go get -u github.com/go-kratos/kratos/cmd/kratos/v2
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+	go get -u google.golang.org/grpc/cmd/protoc-gen-openapiv2
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2
 
@@ -39,6 +40,16 @@ api:
  	       --go-grpc_out=paths=source_relative:. \
 	       $(API_PROTO_FILES)
 
+.PHONY: swagger
+# generate swagger
+swagger:
+	protoc --proto_path=. \
+		   --proto_path=./third_party \
+		   --openapiv2_out=. \
+		   --openapiv2_opt logtostderr=true \
+		   --openapiv2_opt json_names_for_fields=false \
+	      $(API_PROTO_FILES)
+
 .PHONY: build
 # build
 build:
@@ -53,6 +64,7 @@ generate:
 # generate all
 all:
 	make api;
+	make swagger;
 	make errors;
 	make config;
 	make generate;
