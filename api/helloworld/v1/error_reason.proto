@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package helloworld.v1;
+
 import "errors/errors.proto";
 
 option go_package = "github.com/go-kratos/kratos-layout/api/helloworld/v1;v1";
@@ -9,8 +10,11 @@ option java_package = "helloworld.v1.errors";
 option objc_class_prefix = "APIHelloworldErrors";
 
 enum ErrorReason {
-  option (errors.default_code) = 500;
+    option (errors.default_code) = 500;
 
-  USER_NOT_FOUND = 0 [(errors.code) = 404];
-  CONTENT_MISSING = 1 [(errors.code) = 400];
+    USER_NOT_FOUND = 0 [(errors.code) = 404];
+    CONTENT_MISSING = 1 [(errors.code) = 400];
+    USER_ALREADY_EXISTS = 2 [(errors.code) = 409];
+    REGISTER_USER_FAILED = 3 [(errors.code) = 410];
+    INTERNAL_ERROR = 4 [(errors.code) = 400];
 }

@@ -28,3 +28,30 @@ func IsContentMissing(err error) bool {
 func ErrorContentMissing(format string, args ...interface{}) *errors.Error {
 	return errors.New(400, ErrorReason_CONTENT_MISSING.String(), fmt.Sprintf(format, args...))
 }
+
+func IsUserAlreadyExists(err error) bool {
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_USER_ALREADY_EXISTS.String() && e.Code == 409
+}
+
+func ErrorUserAlreadyExists(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ErrorReason_USER_ALREADY_EXISTS.String(), fmt.Sprintf(format, args...))
+}
+
+func IsRegisterUserFailed(err error) bool {
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_REGISTER_USER_FAILED.String() && e.Code == 410
+}
+
+func ErrorRegisterUserFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(410, ErrorReason_REGISTER_USER_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsInternalError(err error) bool {
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_INTERNAL_ERROR.String() && e.Code == 400
+}
+
+func ErrorInternalError(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ErrorReason_INTERNAL_ERROR.String(), fmt.Sprintf(format, args...))
+}
