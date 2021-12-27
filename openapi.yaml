@@ -1,0 +1,32 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/apps/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Greeter
+    description: The greeting service definition.
+    version: 0.0.1
+paths:
+    /helloworld/{name}:
+        get:
+            summary: Sends a greeting
+            operationId: Greeter_SayHello
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/HelloReply'
+components:
+    schemas:
+        HelloReply:
+            properties:
+                message:
+                    type: string
+            description: The response message containing the greetings

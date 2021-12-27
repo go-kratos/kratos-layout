@@ -11,6 +11,8 @@ init:
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2
 	go get -u github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2
+	go get -u github.com/google/gnostic
+	go install github.com/google/gnostic/apps/protoc-gen-openapi
 
 .PHONY: errors
 # generate errors code
@@ -37,6 +39,7 @@ api:
  	       --go_out=paths=source_relative:. \
  	       --go-http_out=paths=source_relative:. \
  	       --go-grpc_out=paths=source_relative:. \
+ 	       --openapi_out==paths=source_relative:. \
 	       $(API_PROTO_FILES)
 
 .PHONY: build
