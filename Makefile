@@ -41,6 +41,15 @@ api:
  	       --openapi_out==paths=source_relative:. \
 	       $(API_PROTO_FILES)
 
+.PHONY: validate
+# generate validate proto
+validate:
+	protoc --proto_path=. \
+           --proto_path=./third_party \
+           --go_out=paths=source_relative:. \
+           --validate_out=paths=source_relative,lang=go:. \
+           $(API_PROTO_FILES)
+
 .PHONY: build
 # build
 build:
@@ -58,6 +67,7 @@ all:
 	make errors;
 	make config;
 	make generate;
+	make validate;
 
 # show help
 help:
