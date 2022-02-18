@@ -11,7 +11,7 @@ init:
 	go install github.com/go-kratos/kratos/cmd/kratos/v2@latest
 	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest
 	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
-	go install github.com/google/gnostic/cmd/protoc-gen-openapi@v0.6.1
+	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 
 .PHONY: errors
 # generate errors code
@@ -67,7 +67,6 @@ all:
 	make errors;
 	make config;
 	make generate;
-	make validate;
 
 # show help
 help:
