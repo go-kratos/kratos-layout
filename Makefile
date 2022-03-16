@@ -46,6 +46,12 @@ api:
 build:
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
 
+.PHONY: wire
+# generate wire
+# e.g. make wire entry=server
+wire:
+	cd cmd/$(entry) && wire
+
 .PHONY: generate
 # generate
 generate:
