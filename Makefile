@@ -36,22 +36,17 @@ api:
 build:
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
 
-.PHONY: wire
-# generate wire
-# e.g. make wire entry=server
-wire:
-	cd cmd/$(entry) && wire
-
 .PHONY: generate
 # generate
 generate:
+	go mod tidy
+	go get github.com/google/wire/cmd/wire@latest
 	go generate ./...
 
 .PHONY: all
 # generate all
 all:
 	make api;
-	make errors;
 	make config;
 	make generate;
 
