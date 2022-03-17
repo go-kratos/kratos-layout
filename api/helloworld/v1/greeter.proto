@@ -13,10 +13,10 @@ option java_outer_classname = "HelloworldProtoV1";
 service Greeter {
   // Sends a greeting
   rpc SayHello (HelloRequest) returns (HelloReply) {
-        option (google.api.http) = {
-            get: "/helloworld/{name}"
-        };
-    }
+    option (google.api.http) = {
+      get: "/helloworld/{name}"
+    };
+  }
 }
 
 // The request message containing the user's name.
