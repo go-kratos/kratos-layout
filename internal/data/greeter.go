@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+
 	"github.com/go-kratos/kratos-layout/internal/biz"
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -19,10 +20,10 @@ func NewGreeterRepo(data *Data, logger log.Logger) biz.GreeterRepo {
 	}
 }
 
-func (r *greeterRepo) CreateGreeter(ctx context.Context, g *biz.Greeter) error {
-	return nil
+func (r *greeterRepo) CreateGreeter(ctx context.Context, g *biz.Greeter) (*biz.Greeter, error) {
+	return g, nil
 }
 
-func (r *greeterRepo) UpdateGreeter(ctx context.Context, g *biz.Greeter) error {
-	return nil
+func (r *greeterRepo) UpdateGreeter(ctx context.Context, g *biz.Greeter) (*biz.Greeter, error) {
+	return nil, nil
 }
