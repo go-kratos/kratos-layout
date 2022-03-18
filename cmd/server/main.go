@@ -14,6 +14,7 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/http"
 )
 
+//go:generate wire
 // go build -ldflags "-X main.Version=x.y.z"
 var (
 	// Name is the name of the compiled software.
