@@ -11,6 +11,7 @@ paths:
         get:
             tags:
                 - Greeter
+                - subgroup
             description: Sends a greeting
             operationId: Greeter_SayHello
             parameters:
@@ -25,10 +26,10 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/.helloworld.v1.HelloReply'
+                                $ref: '#/components/schemas/helloworld.v1.HelloReply'
 components:
     schemas:
-        .helloworld.v1.HelloReply:
+        helloworld.v1.HelloReply:
             type: object
             properties:
                 message:
