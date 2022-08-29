@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package openapi.v3;
 
-import "openapiv3/OpenAPIv3.proto";
+import "openapi/v3/openapi.proto";
 import "google/protobuf/descriptor.proto";
 
 // This option lets the proto compiler generate Java code inside the package
