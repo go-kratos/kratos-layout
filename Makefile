@@ -9,10 +9,10 @@ ifeq ($(GOHOSTOS), windows)
 	#Git_Bash= $(subst cmd\,bin\bash.exe,$(dir $(shell where git)))
 	Git_Bash=$(subst \,/,$(subst cmd\,bin\bash.exe,$(dir $(shell where git | grep cmd))))
 	INTERNAL_PROTO_FILES=$(shell $(Git_Bash) -c "find internal -name *.proto")
-	API_PROTO_FILES=$(shell $(Git_Bash) -c "find api -name *.proto")
+	API_PROTO_FILES=$(shell $(Git_Bash) -c "find ./api/ -path ./api/third_party -prune -o -name *.proto -print0")
 else
 	INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
-	API_PROTO_FILES=$(shell find api -name *.proto)
+	API_PROTO_FILES=$(shell find ./api/ -path ./api/third_party -prune -o -name *.proto -print0)
 endif
 
 .PHONY: init
@@ -29,7 +29,7 @@ init:
 # generate internal proto
 config:
 	protoc --proto_path=./internal \
-	       --proto_path=./third_party \
+	       --proto_path=./api/third_party \
  	       --go_out=paths=source_relative:./internal \
 	       $(INTERNAL_PROTO_FILES)
 
@@ -37,7 +37,7 @@ config:
 # generate api proto
 api:
 	protoc --proto_path=./api \
-	       --proto_path=./third_party \
+	       --proto_path=./api/third_party \
  	       --go_out=paths=source_relative:./api \
  	       --go-http_out=paths=source_relative:./api \
  	       --go-grpc_out=paths=source_relative:./api \
