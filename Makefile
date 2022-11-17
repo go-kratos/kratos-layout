@@ -9,10 +9,10 @@ ifeq ($(GOHOSTOS), windows)
 	#Git_Bash= $(subst cmd\,bin\bash.exe,$(dir $(shell where git)))
 	Git_Bash=$(subst \,/,$(subst cmd\,bin\bash.exe,$(dir $(shell where git | grep cmd))))
 	INTERNAL_PROTO_FILES=$(shell $(Git_Bash) -c "find internal -name *.proto")
-	API_PROTO_FILES=$(shell $(Git_Bash) -c "find ./api/ -path ./api/third_party -prune -o -name *.proto -print0")
+	API_PROTO_FILES=$(shell $(Git_Bash) -c "find ./api/ -path ./api/third_party -prune -o -name *.proto -print")
 else
 	INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
-	API_PROTO_FILES=$(shell find ./api/ -path ./api/third_party -prune -o -name *.proto -print0)
+	API_PROTO_FILES=$(shell find ./api/ -path ./api/third_party -prune -o -name *.proto -print)
 endif
 
 .PHONY: init
