@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package helloworld.v1;
 
-option go_package = "github.com/go-kratos/kratos-layout/api/helloworld/v1;v1";
+option go_package = "github.com/author_name/project_name/api/helloworld/v1;v1";
 option java_multiple_files = true;
 option java_package = "helloworld.v1";
 option objc_class_prefix = "APIHelloworldV1";
