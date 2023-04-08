@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
+	"github.com/go-kratos/kratos/v2"
 	"os"
 
-	"github.com/go-kratos/kratos-layout/internal/conf"
+	"github.com/author_name/project_name/internal/conf"
 
-	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
