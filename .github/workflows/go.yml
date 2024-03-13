@@ -11,39 +11,39 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v4
+     - name: Check out code into the Go module directory
+       uses: actions/checkout@v4
 
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v5.0.0
-        with:
-          go-version: ^1.19
+     - name: Set up Go 1.x
+       uses: actions/setup-go@v5.0.0
+       with:
+         go-version: ^1.19
 
-      - name: Setup Environment
-        run: |
-          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
-          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+     - name: Setup Environment
+       run: |
+         echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+         echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
-      - name: Module cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go
+     - name: Module cache
+       uses: actions/cache@v4
+       with:
+         path: |
+           ~/.cache/go-build
+           ~/go/pkg/mod
+         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+         restore-keys: |
+           ${{ runner.os }}-go
 
-      - name: Get dependencies
-        run: |
-          go get -v -t -d ./...
-          if [ -f Gopkg.toml ]; then
-              curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-              dep ensure
-          fi
+     - name: Get dependencies
+       run: |
+         go get -v -t -d ./...
+         if [ -f Gopkg.toml ]; then
+             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+             dep ensure
+         fi
 
-      - name: Build
-        run: go build -v ./...
+     - name: Build
+       run: go build -v ./...
 
-      - name: Test
-        run: go test -v ./...
+     - name: Test
+       run: go test -v ./...
