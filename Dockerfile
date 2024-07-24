@@ -3,7 +3,8 @@ FROM golang:1.19 AS builder
 COPY . /src
 WORKDIR /src
 
-RUN GOPROXY=https://goproxy.cn make build
+ENV GOPROXY https://goproxy.cn 
+RUN go mod tidy && make build
 
 FROM debian:stable-slim
 
