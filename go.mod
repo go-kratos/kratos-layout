@@ -7,7 +7,7 @@ require (
 	github.com/google/wire v0.6.0
 	go.uber.org/automaxprocs v1.5.1
 	google.golang.org/genproto/googleapis/api v0.0.0-20240102182953-50ed04b92917
-	google.golang.org/grpc v1.61.1
+	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.33.0
 )
 
