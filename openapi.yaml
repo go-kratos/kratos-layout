@@ -3,15 +3,13 @@
 
 openapi: 3.0.3
 info:
-    title: Greeter API
-    description: The greeting service definition.
+    title: ""
     version: 0.0.1
 paths:
-    /helloworld/{name}:
+    /v1/helloworld/{name}:
         get:
             tags:
                 - Greeter
-                - subgroup
             description: Sends a greeting
             operationId: Greeter_SayHello
             parameters:
@@ -27,6 +25,124 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.HelloReply'
+    /v1/routeguide/features:
+        get:
+            tags:
+                - RouteGuide
+            description: |-
+                A server-to-client streaming RPC.
+
+                 Obtains the Features available within the given Rectangle.  Results are
+                 streamed rather than returned at once (e.g. in a response message with a
+                 repeated field), as the rectangle may cover a large area and contain a
+                 huge number of features.
+            operationId: RouteGuide_ListFeatures
+            parameters:
+                - name: lo.latitude
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: lo.longitude
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: hi.latitude
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: hi.longitude
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/routeguide.v1.Feature'
+    /v1/routeguide/features/{latitude}/{longitude}:
+        get:
+            tags:
+                - RouteGuide
+            description: |-
+                A simple RPC.
+
+                 Obtains the feature at a given position.
+
+                 A feature with an empty name is returned if there's no feature at the given
+                 position.
+            operationId: RouteGuide_GetFeature
+            parameters:
+                - name: latitude
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: int32
+                - name: longitude
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/routeguide.v1.Feature'
+    /v1/routeguide/record-route:
+        post:
+            tags:
+                - RouteGuide
+            description: |-
+                A client-to-server streaming RPC.
+
+                 Accepts a stream of Points on a route being traversed, returning a
+                 RouteSummary when traversal is completed.
+            operationId: RouteGuide_RecordRoute
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/routeguide.v1.Point'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/routeguide.v1.RouteSummary'
+    /v1/routeguide/route-chat:
+        post:
+            tags:
+                - RouteGuide
+            description: |-
+                A Bidirectional streaming RPC.
+
+                 Accepts a stream of RouteNotes sent while a route is being traversed,
+                 while receiving other RouteNotes (e.g. from other users).
+            operationId: RouteGuide_RouteChat
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/routeguide.v1.RouteNote'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/routeguide.v1.RouteNote'
 components:
     schemas:
         helloworld.v1.HelloReply:
@@ -35,5 +151,72 @@ components:
                 message:
                     type: string
             description: The response message containing the greetings
+        routeguide.v1.Feature:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: The name of the feature.
+                location:
+                    allOf:
+                        - $ref: '#/components/schemas/routeguide.v1.Point'
+                    description: The point where the feature is detected.
+            description: |-
+                A feature names something at a given point.
+
+                 If a feature could not be named, the name is empty.
+        routeguide.v1.Point:
+            type: object
+            properties:
+                latitude:
+                    type: integer
+                    format: int32
+                longitude:
+                    type: integer
+                    format: int32
+            description: |-
+                Points are represented as latitude-longitude pairs in the E7 representation
+                 (degrees multiplied by 10**7 and rounded to the nearest integer).
+                 Latitudes should be in the range +/- 90 degrees and longitude should be in
+                 the range +/- 180 degrees (inclusive).
+        routeguide.v1.RouteNote:
+            type: object
+            properties:
+                location:
+                    allOf:
+                        - $ref: '#/components/schemas/routeguide.v1.Point'
+                    description: The location from which the message is sent.
+                message:
+                    type: string
+                    description: The message to be sent.
+            description: A RouteNote is a message sent while at a given point.
+        routeguide.v1.RouteSummary:
+            type: object
+            properties:
+                pointCount:
+                    type: integer
+                    description: The number of points received.
+                    format: int32
+                featureCount:
+                    type: integer
+                    description: The number of known features passed while traversing the route.
+                    format: int32
+                distance:
+                    type: integer
+                    description: The distance covered in metres.
+                    format: int32
+                elapsedTime:
+                    type: integer
+                    description: The duration of the traversal in seconds.
+                    format: int32
+            description: |-
+                A RouteSummary is received in response to a RecordRoute rpc.
+
+                 It contains the number of individual points received, the number of
+                 detected features, and the total distance covered as the cumulative sum of
+                 the distance between each point.
 tags:
     - name: Greeter
+      description: The greeting service definition.
+    - name: RouteGuide
+      description: Interface exported by the server.

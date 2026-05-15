@@ -2,7 +2,7 @@
 
 ## Install Kratos
 ```
-go install github.com/go-kratos/kratos/cmd/kratos/v2@latest
+go install github.com/go-kratos/kratos/cmd/kratos/v3@latest
 ```
 ## Create a service
 ```
