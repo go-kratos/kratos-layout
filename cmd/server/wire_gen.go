@@ -28,10 +28,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger *slog.Logger) 
 	if err != nil {
 		return nil, nil, err
 	}
-	greeterRepo := data.NewGreeterRepo(dataData, logger)
+	greeterRepo := data.NewGreeterRepo(dataData)
 	greeterUsecase := biz.NewGreeterUsecase(greeterRepo)
 	greeterService := service.NewGreeterService(greeterUsecase)
-	routeGuideRepo := data.NewRouteGuideRepo(dataData, logger)
+	routeGuideRepo := data.NewRouteGuideRepo(dataData)
 	routeGuideUsecase := biz.NewRouteGuideUsecase(routeGuideRepo)
 	routeGuideService := service.NewRouteGuideService(routeGuideUsecase)
 	grpcServer := server.NewGRPCServer(confServer, greeterService, routeGuideService)

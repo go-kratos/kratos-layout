@@ -2,21 +2,18 @@ package data
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/go-kratos/kratos-layout/internal/biz"
 )
 
 type greeterRepo struct {
 	data *Data
-	log  *slog.Logger
 }
 
 // NewGreeterRepo .
-func NewGreeterRepo(data *Data, logger *slog.Logger) biz.GreeterRepo {
+func NewGreeterRepo(data *Data) biz.GreeterRepo {
 	return &greeterRepo{
 		data: data,
-		log:  logger,
 	}
 }
 

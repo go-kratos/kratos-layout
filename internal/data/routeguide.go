@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"sync"
 
 	v1 "github.com/go-kratos/kratos-layout/api/routeguide/v1"
@@ -12,7 +11,6 @@ import (
 
 type routeGuideRepo struct {
 	data *Data
-	log  *slog.Logger
 
 	mu         sync.RWMutex
 	features   []*v1.Feature
@@ -20,10 +18,9 @@ type routeGuideRepo struct {
 }
 
 // NewRouteGuideRepo new a route guide repo.
-func NewRouteGuideRepo(data *Data, logger *slog.Logger) biz.RouteGuideRepo {
+func NewRouteGuideRepo(data *Data) biz.RouteGuideRepo {
 	return &routeGuideRepo{
 		data: data,
-		log:  logger,
 		features: []*v1.Feature{
 			{Name: "Berkshire Valley Management Area Trail", Location: &v1.Point{Latitude: 409146138, Longitude: -746188906}},
 			{Name: "Patriots Path", Location: &v1.Point{Latitude: 407838351, Longitude: -746143763}},
