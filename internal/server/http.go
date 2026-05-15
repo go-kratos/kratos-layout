@@ -1,8 +1,6 @@
 package server
 
 import (
-	"log/slog"
-
 	hellov1 "github.com/go-kratos/kratos-layout/api/helloworld/v1"
 	routev1 "github.com/go-kratos/kratos-layout/api/routeguide/v1"
 	"github.com/go-kratos/kratos-layout/internal/conf"
@@ -13,7 +11,7 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, routeGuide *service.RouteGuideService, logger *slog.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, routeGuide *service.RouteGuideService) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
