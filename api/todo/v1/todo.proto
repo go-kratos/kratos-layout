@@ -1,0 +1,139 @@
+syntax = "proto3";
+
+package todo.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/go-kratos/kratos-layout/api/todo/v1;v1";
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.todo.v1";
+option java_outer_classname = "TodoProto";
+
+// TodoService provides a simple CRUD example.
+service TodoService {
+  // CreateTodo creates a todo item.
+  rpc CreateTodo (CreateTodoRequest) returns (Todo) {
+    option (google.api.http) = {
+      post: "/v1/todos/create"
+      body: "todo"
+    };
+  }
+
+  // GetTodo returns a todo item by id.
+  rpc GetTodo (GetTodoRequest) returns (Todo) {
+    option (google.api.http) = {
+      get: "/v1/todos/{id}"
+    };
+  }
+
+  // ListTodos lists todo items.
+  rpc ListTodos (ListTodosRequest) returns (TodoSet) {
+    option (google.api.http) = {
+      get: "/v1/todos/list"
+    };
+  }
+
+  // UpdateTodo updates a todo item.
+  rpc UpdateTodo (UpdateTodoRequest) returns (Todo) {
+    option (google.api.http) = {
+      put: "/v1/todos/update"
+      body: "todo"
+    };
+  }
+
+  // DeleteTodo deletes a todo item.
+  rpc DeleteTodo (DeleteTodoRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/todos/{id}"
+    };
+  }
+
+  // WatchTodos streams todo snapshots from the server to the client.
+  rpc WatchTodos (WatchTodosRequest) returns (stream TodoEvent) {
+    option (google.api.http) = {
+      get: "/v1/todos/watch"
+    };
+  }
+
+  // SyncTodos exchanges todo changes in both directions.
+  rpc SyncTodos (stream SyncTodoRequest) returns (stream TodoEvent) {
+    option (google.api.http) = {
+      post: "/v1/todos/sync"
+      body: "*"
+    };
+  }
+}
+
+message Todo {
+  int64 id = 1;
+  string title = 2;
+  string content = 3;
+  bool completed = 4;
+  google.protobuf.Timestamp create_time = 5;
+  google.protobuf.Timestamp update_time = 6;
+}
+
+message TodoSet {
+  repeated Todo todos = 1;
+  string next_page_token = 2;
+}
+
+message CreateTodoRequest {
+  Todo todo = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetTodoRequest {
+  int64 id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListTodosRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+  // Optional. The standard list filter.
+  // Supported fields:
+  //    * `title` (i.e. `title:"bug"`)
+  //    * `content` (i.e. `content:"docs"`)
+  //    * `completed` (i.e. `completed` or `NOT completed`)
+  //    * `create_time` range (i.e. `create_time>="2026-01-01T00:00:00Z"`)
+  string filter = 3;
+  // Optional. A comma-separated list of fields to order by.
+  // Supported fields:
+  //    * `id`
+  //    * `title`
+  //    * `create_time`
+  //    * `update_time`
+  string order_by = 4;
+}
+
+message UpdateTodoRequest {
+  Todo todo = 1 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteTodoRequest {
+  int64 id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message WatchTodosRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+  string filter = 3;
+  string order_by = 4;
+}
+
+message SyncTodoRequest {
+  string action = 1;
+  Todo todo = 2;
+  int64 id = 3;
+  google.protobuf.FieldMask update_mask = 4;
+}
+
+message TodoEvent {
+  string action = 1;
+  Todo todo = 2;
+  google.protobuf.Timestamp event_time = 3;
+}

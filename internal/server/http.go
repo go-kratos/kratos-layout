@@ -1,8 +1,7 @@
 package server
 
 import (
-	hellov1 "github.com/go-kratos/kratos-layout/api/helloworld/v1"
-	routev1 "github.com/go-kratos/kratos-layout/api/routeguide/v1"
+	v1 "github.com/go-kratos/kratos-layout/api/todo/v1"
 	"github.com/go-kratos/kratos-layout/internal/conf"
 	"github.com/go-kratos/kratos-layout/internal/service"
 
@@ -11,7 +10,7 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, routeGuide *service.RouteGuideService) *http.Server {
+func NewHTTPServer(c *conf.Server, todo *service.TodoService) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
@@ -27,7 +26,6 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, routeGuide *
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
-	hellov1.RegisterGreeterHTTPServer(srv, greeter)
-	routev1.RegisterRouteGuideHTTPServer(srv, routeGuide)
+	v1.RegisterTodoServiceHTTPServer(srv, todo)
 	return srv
 }

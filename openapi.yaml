@@ -3,17 +3,157 @@
 
 openapi: 3.0.3
 info:
-    title: ""
+    title: TodoService API
+    description: TodoService provides a simple CRUD example.
     version: 0.0.1
 paths:
-    /v1/helloworld/{name}:
+    /v1/todos/create:
+        post:
+            tags:
+                - TodoService
+            description: CreateTodo creates a todo item.
+            operationId: TodoService_CreateTodo
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/todo.v1.Todo'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/todo.v1.Todo'
+    /v1/todos/list:
         get:
             tags:
-                - Greeter
-            description: Sends a greeting
-            operationId: Greeter_SayHello
+                - TodoService
+            description: ListTodos lists todo items.
+            operationId: TodoService_ListTodos
             parameters:
-                - name: name
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: |-
+                    Optional. The standard list filter.
+                     Supported fields:
+                        * `title` (i.e. `title:"bug"`)
+                        * `content` (i.e. `content:"docs"`)
+                        * `completed` (i.e. `completed` or `NOT completed`)
+                        * `create_time` range (i.e. `create_time>="2026-01-01T00:00:00Z"`)
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  description: |-
+                    Optional. A comma-separated list of fields to order by.
+                     Supported fields:
+                        * `id`
+                        * `title`
+                        * `create_time`
+                        * `update_time`
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/todo.v1.TodoSet'
+    /v1/todos/sync:
+        post:
+            tags:
+                - TodoService
+            description: SyncTodos exchanges todo changes in both directions.
+            operationId: TodoService_SyncTodos
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/todo.v1.SyncTodoRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/todo.v1.TodoEvent'
+    /v1/todos/update:
+        put:
+            tags:
+                - TodoService
+            description: UpdateTodo updates a todo item.
+            operationId: TodoService_UpdateTodo
+            parameters:
+                - name: updateMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/todo.v1.Todo'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/todo.v1.Todo'
+    /v1/todos/watch:
+        get:
+            tags:
+                - TodoService
+            description: WatchTodos streams todo snapshots from the server to the client.
+            operationId: TodoService_WatchTodos
+            parameters:
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/todo.v1.TodoEvent'
+    /v1/todos/{id}:
+        get:
+            tags:
+                - TodoService
+            description: GetTodo returns a todo item by id.
+            operationId: TodoService_GetTodo
+            parameters:
+                - name: id
                   in: path
                   required: true
                   schema:
@@ -24,199 +164,71 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/helloworld.v1.HelloReply'
-    /v1/routeguide/features:
-        get:
+                                $ref: '#/components/schemas/todo.v1.Todo'
+        delete:
             tags:
-                - RouteGuide
-            description: |-
-                A server-to-client streaming RPC.
-
-                 Obtains the Features available within the given Rectangle.  Results are
-                 streamed rather than returned at once (e.g. in a response message with a
-                 repeated field), as the rectangle may cover a large area and contain a
-                 huge number of features.
-            operationId: RouteGuide_ListFeatures
+                - TodoService
+            description: DeleteTodo deletes a todo item.
+            operationId: TodoService_DeleteTodo
             parameters:
-                - name: lo.latitude
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: lo.longitude
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: hi.latitude
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: hi.longitude
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/routeguide.v1.Feature'
-    /v1/routeguide/features/{latitude}/{longitude}:
-        get:
-            tags:
-                - RouteGuide
-            description: |-
-                A simple RPC.
-
-                 Obtains the feature at a given position.
-
-                 A feature with an empty name is returned if there's no feature at the given
-                 position.
-            operationId: RouteGuide_GetFeature
-            parameters:
-                - name: latitude
+                - name: id
                   in: path
                   required: true
                   schema:
-                    type: integer
-                    format: int32
-                - name: longitude
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: int32
+                    type: string
             responses:
                 "200":
                     description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/routeguide.v1.Feature'
-    /v1/routeguide/record-route:
-        post:
-            tags:
-                - RouteGuide
-            description: |-
-                A client-to-server streaming RPC.
-
-                 Accepts a stream of Points on a route being traversed, returning a
-                 RouteSummary when traversal is completed.
-            operationId: RouteGuide_RecordRoute
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/routeguide.v1.Point'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/routeguide.v1.RouteSummary'
-    /v1/routeguide/route-chat:
-        post:
-            tags:
-                - RouteGuide
-            description: |-
-                A Bidirectional streaming RPC.
-
-                 Accepts a stream of RouteNotes sent while a route is being traversed,
-                 while receiving other RouteNotes (e.g. from other users).
-            operationId: RouteGuide_RouteChat
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/routeguide.v1.RouteNote'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/routeguide.v1.RouteNote'
+                    content: {}
 components:
     schemas:
-        helloworld.v1.HelloReply:
+        todo.v1.SyncTodoRequest:
             type: object
             properties:
-                message:
+                action:
                     type: string
-            description: The response message containing the greetings
-        routeguide.v1.Feature:
-            type: object
-            properties:
-                name:
+                todo:
+                    $ref: '#/components/schemas/todo.v1.Todo'
+                id:
                     type: string
-                    description: The name of the feature.
-                location:
-                    allOf:
-                        - $ref: '#/components/schemas/routeguide.v1.Point'
-                    description: The point where the feature is detected.
-            description: |-
-                A feature names something at a given point.
-
-                 If a feature could not be named, the name is empty.
-        routeguide.v1.Point:
-            type: object
-            properties:
-                latitude:
-                    type: integer
-                    format: int32
-                longitude:
-                    type: integer
-                    format: int32
-            description: |-
-                Points are represented as latitude-longitude pairs in the E7 representation
-                 (degrees multiplied by 10**7 and rounded to the nearest integer).
-                 Latitudes should be in the range +/- 90 degrees and longitude should be in
-                 the range +/- 180 degrees (inclusive).
-        routeguide.v1.RouteNote:
-            type: object
-            properties:
-                location:
-                    allOf:
-                        - $ref: '#/components/schemas/routeguide.v1.Point'
-                    description: The location from which the message is sent.
-                message:
+                updateMask:
                     type: string
-                    description: The message to be sent.
-            description: A RouteNote is a message sent while at a given point.
-        routeguide.v1.RouteSummary:
+                    format: field-mask
+        todo.v1.Todo:
             type: object
             properties:
-                pointCount:
-                    type: integer
-                    description: The number of points received.
-                    format: int32
-                featureCount:
-                    type: integer
-                    description: The number of known features passed while traversing the route.
-                    format: int32
-                distance:
-                    type: integer
-                    description: The distance covered in metres.
-                    format: int32
-                elapsedTime:
-                    type: integer
-                    description: The duration of the traversal in seconds.
-                    format: int32
-            description: |-
-                A RouteSummary is received in response to a RecordRoute rpc.
-
-                 It contains the number of individual points received, the number of
-                 detected features, and the total distance covered as the cumulative sum of
-                 the distance between each point.
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                completed:
+                    type: boolean
+                createTime:
+                    type: string
+                    format: date-time
+                updateTime:
+                    type: string
+                    format: date-time
+        todo.v1.TodoEvent:
+            type: object
+            properties:
+                action:
+                    type: string
+                todo:
+                    $ref: '#/components/schemas/todo.v1.Todo'
+                eventTime:
+                    type: string
+                    format: date-time
+        todo.v1.TodoSet:
+            type: object
+            properties:
+                todos:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/todo.v1.Todo'
+                nextPageToken:
+                    type: string
 tags:
-    - name: Greeter
-      description: The greeting service definition.
-    - name: RouteGuide
-      description: Interface exported by the server.
+    - name: TodoService
