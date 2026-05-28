@@ -13,9 +13,13 @@ option java_multiple_files = true;
 option java_package = "io.grpc.examples.todo.v1";
 option java_outer_classname = "TodoProto";
 
-// TodoService provides a simple CRUD example.
+// TodoService provides a simple CRUD example for managing todo items.
+// It demonstrates unary, server-streaming, and bidirectional-streaming RPCs
+// together with AIP-style list filtering, ordering, and pagination.
 service TodoService {
-  // CreateTodo creates a todo item.
+  // CreateTodo creates a new todo item and returns the persisted record
+  // with the server-assigned id, create_time, and update_time populated.
+  // Returns INVALID_ARGUMENT if the request payload fails validation.
   rpc CreateTodo (CreateTodoRequest) returns (Todo) {
     option (google.api.http) = {
       post: "/v1/todos/create"
@@ -23,21 +27,28 @@ service TodoService {
     };
   }
 
-  // GetTodo returns a todo item by id.
+  // GetTodo returns a single todo item by its id.
+  // Returns NOT_FOUND if no todo exists with the supplied id.
   rpc GetTodo (GetTodoRequest) returns (Todo) {
     option (google.api.http) = {
       get: "/v1/todos/{id}"
     };
   }
 
-  // ListTodos lists todo items.
+  // ListTodos returns a page of todo items, optionally filtered and ordered.
+  // Use the next_page_token from TodoSet to retrieve subsequent pages.
+  // Returns INVALID_ARGUMENT if filter, order_by, or page_token are malformed.
   rpc ListTodos (ListTodosRequest) returns (TodoSet) {
     option (google.api.http) = {
       get: "/v1/todos/list"
     };
   }
 
-  // UpdateTodo updates a todo item.
+  // UpdateTodo applies a partial update to an existing todo item using a
+  // FieldMask. Only the fields listed in update_mask are overwritten; all
+  // other fields are left unchanged.
+  // Returns NOT_FOUND if the target todo does not exist, or
+  // INVALID_ARGUMENT if update_mask references unknown fields.
   rpc UpdateTodo (UpdateTodoRequest) returns (Todo) {
     option (google.api.http) = {
       put: "/v1/todos/update"
@@ -45,21 +56,27 @@ service TodoService {
     };
   }
 
-  // DeleteTodo deletes a todo item.
+  // DeleteTodo permanently removes a todo item by its id.
+  // Returns NOT_FOUND if no todo exists with the supplied id.
   rpc DeleteTodo (DeleteTodoRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/todos/{id}"
     };
   }
 
-  // WatchTodos streams todo snapshots from the server to the client.
+  // WatchTodos opens a server-side stream that emits a TodoEvent for every
+  // create, update, or delete that matches the supplied filter and ordering.
+  // The stream remains open until the client cancels or the server terminates it.
   rpc WatchTodos (WatchTodosRequest) returns (stream TodoEvent) {
     option (google.api.http) = {
       get: "/v1/todos/watch"
     };
   }
 
-  // SyncTodos exchanges todo changes in both directions.
+  // SyncTodos opens a bidirectional stream for two-way synchronization.
+  // The client sends SyncTodoRequest messages describing local changes, and
+  // the server pushes back TodoEvent messages reflecting the resulting state.
+  // The stream stays open until either side closes it.
   rpc SyncTodos (stream SyncTodoRequest) returns (stream TodoEvent) {
     option (google.api.http) = {
       post: "/v1/todos/sync"
@@ -68,30 +85,51 @@ service TodoService {
   }
 }
 
+// Todo is the canonical representation of a todo item.
 message Todo {
+  // Server-assigned unique identifier. Read-only on create.
   int64 id = 1;
+  // Short human-readable title.
   string title = 2;
+  // Detailed description or notes for the todo item.
   string content = 3;
+  // Whether the todo item has been completed.
   bool completed = 4;
+  // Time at which the todo item was created. Server-assigned, read-only.
   google.protobuf.Timestamp create_time = 5;
+  // Time at which the todo item was last modified. Server-assigned, read-only.
   google.protobuf.Timestamp update_time = 6;
 }
 
+// TodoSet is a paginated collection of todo items returned by ListTodos.
 message TodoSet {
+  // The page of todo items in the order requested by ListTodosRequest.order_by.
   repeated Todo todos = 1;
+  // Token used to retrieve the next page via ListTodosRequest.page_token.
+  // Empty when there are no more results.
   string next_page_token = 2;
 }
 
+// CreateTodoRequest is the input for TodoService.CreateTodo.
 message CreateTodoRequest {
+  // The todo item to create. The id, create_time, and update_time fields are
+  // ignored on input and populated by the server in the response.
   Todo todo = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetTodoRequest is the input for TodoService.GetTodo.
 message GetTodoRequest {
+  // Unique identifier of the todo item to retrieve.
   int64 id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// ListTodosRequest is the input for TodoService.ListTodos.
 message ListTodosRequest {
+  // Optional. Maximum number of todo items to return in a single page.
+  // The server may apply a default and a maximum when unset or out of range.
   int32 page_size = 1;
+  // Optional. Token from a previous response's next_page_token used to fetch
+  // the next page. Leave empty to request the first page.
   string page_token = 2;
   // Optional. The standard list filter.
   // Supported fields:
@@ -106,34 +144,63 @@ message ListTodosRequest {
   //    * `title`
   //    * `create_time`
   //    * `update_time`
+  // Append ` desc` to a field for descending order, e.g. `create_time desc`.
+  // Defaults to ascending order when no direction is supplied.
   string order_by = 4;
 }
 
+// UpdateTodoRequest is the input for TodoService.UpdateTodo.
 message UpdateTodoRequest {
+  // The todo carrying the new field values. todo.id identifies the target
+  // record and must be set.
   Todo todo = 1 [(google.api.field_behavior) = REQUIRED];
+  // Set of field paths in todo to overwrite. Fields not listed are left
+  // unchanged. Use a single path of `*` to replace every mutable field.
   google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteTodoRequest is the input for TodoService.DeleteTodo.
 message DeleteTodoRequest {
+  // Unique identifier of the todo item to delete.
   int64 id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// WatchTodosRequest is the input for TodoService.WatchTodos.
+// It selects which todo items the resulting event stream observes.
 message WatchTodosRequest {
+  // Optional. Maximum number of todo items returned in the initial snapshot
+  // before live events begin streaming.
   int32 page_size = 1;
+  // Optional. Page token used to resume from a prior snapshot.
   string page_token = 2;
+  // Optional. List filter expression. Same syntax as ListTodosRequest.filter.
   string filter = 3;
+  // Optional. Order specification. Same syntax as ListTodosRequest.order_by.
   string order_by = 4;
 }
 
+// SyncTodoRequest is a single client message in the SyncTodos bidirectional
+// stream. The action field selects which operation to perform on the server.
 message SyncTodoRequest {
+  // The operation to perform. One of `create`, `update`, or `delete`.
   string action = 1;
+  // Payload for `create` and `update` actions. Ignored for `delete`.
   Todo todo = 2;
+  // Identifier of the target todo. Required for `delete` and `update`.
   int64 id = 3;
+  // Field mask used by `update` actions to limit which fields are overwritten.
+  // Ignored for `create` and `delete`.
   google.protobuf.FieldMask update_mask = 4;
 }
 
+// TodoEvent is a server-sent message describing a change to a todo item.
+// It is emitted by both WatchTodos and SyncTodos streams.
 message TodoEvent {
+  // The change that occurred. One of `created`, `updated`, or `deleted`.
   string action = 1;
+  // The todo item after the change. For `deleted` events only the id field
+  // is guaranteed to be populated.
   Todo todo = 2;
+  // Time at which the change was observed by the server.
   google.protobuf.Timestamp event_time = 3;
 }
