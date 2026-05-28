@@ -1,0 +1,22 @@
+# Default to LF in the repo, let git convert on Windows checkout when needed.
+* text=auto eol=lf
+
+# Go and proto sources are always LF.
+*.go    text eol=lf
+*.proto text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.md    text eol=lf
+
+# Generated files: keep diffs collapsed in review tools.
+*.pb.go            linguist-generated=true
+*_grpc.pb.go       linguist-generated=true
+*_http.pb.go       linguist-generated=true
+wire_gen.go        linguist-generated=true
+openapi.yaml       linguist-generated=true
+internal/data/ent/** linguist-generated=true
+
+# Binaries.
+*.png binary
+*.jpg binary
+*.ico binary
