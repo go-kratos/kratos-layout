@@ -1,0 +1,19 @@
+version: v2
+inputs:
+  - directory: api
+plugins:
+  - local: ["go", "run", "google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11"]
+    out: api
+    opt: paths=source_relative
+  - local: ["go", "run", "google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1"]
+    out: api
+    opt: paths=source_relative
+  - local: ["go", "run", "github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v3@v3.0.0-20260526000039-30da04b769dc"]
+    out: api
+    opt: paths=source_relative
+  - local: ["go", "run", "github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.0"]
+    out: .
+    strategy: all
+    opt:
+      - fq_schema_naming=true
+      - default_response=false

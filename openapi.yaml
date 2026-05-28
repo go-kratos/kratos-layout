@@ -4,14 +4,20 @@
 openapi: 3.0.3
 info:
     title: TodoService API
-    description: TodoService provides a simple CRUD example.
+    description: |-
+        TodoService provides a simple CRUD example for managing todo items.
+         It demonstrates unary, server-streaming, and bidirectional-streaming RPCs
+         together with AIP-style list filtering, ordering, and pagination.
     version: 0.0.1
 paths:
     /v1/todos/create:
         post:
             tags:
                 - TodoService
-            description: CreateTodo creates a todo item.
+            description: |-
+                CreateTodo creates a new todo item and returns the persisted record
+                 with the server-assigned id, create_time, and update_time populated.
+                 Returns INVALID_ARGUMENT if the request payload fails validation.
             operationId: TodoService_CreateTodo
             requestBody:
                 content:
@@ -30,16 +36,25 @@ paths:
         get:
             tags:
                 - TodoService
-            description: ListTodos lists todo items.
+            description: |-
+                ListTodos returns a page of todo items, optionally filtered and ordered.
+                 Use the next_page_token from TodoSet to retrieve subsequent pages.
+                 Returns INVALID_ARGUMENT if filter, order_by, or page_token are malformed.
             operationId: TodoService_ListTodos
             parameters:
                 - name: pageSize
                   in: query
+                  description: |-
+                    Optional. Maximum number of todo items to return in a single page.
+                     The server may apply a default and a maximum when unset or out of range.
                   schema:
                     type: integer
                     format: int32
                 - name: pageToken
                   in: query
+                  description: |-
+                    Optional. Token from a previous response's next_page_token used to fetch
+                     the next page. Leave empty to request the first page.
                   schema:
                     type: string
                 - name: filter
@@ -62,6 +77,8 @@ paths:
                         * `title`
                         * `create_time`
                         * `update_time`
+                     Append ` desc` to a field for descending order, e.g. `create_time desc`.
+                     Defaults to ascending order when no direction is supplied.
                   schema:
                     type: string
             responses:
@@ -75,7 +92,11 @@ paths:
         post:
             tags:
                 - TodoService
-            description: SyncTodos exchanges todo changes in both directions.
+            description: |-
+                SyncTodos opens a bidirectional stream for two-way synchronization.
+                 The client sends SyncTodoRequest messages describing local changes, and
+                 the server pushes back TodoEvent messages reflecting the resulting state.
+                 The stream stays open until either side closes it.
             operationId: TodoService_SyncTodos
             requestBody:
                 content:
@@ -94,11 +115,19 @@ paths:
         put:
             tags:
                 - TodoService
-            description: UpdateTodo updates a todo item.
+            description: |-
+                UpdateTodo applies a partial update to an existing todo item using a
+                 FieldMask. Only the fields listed in update_mask are overwritten; all
+                 other fields are left unchanged.
+                 Returns NOT_FOUND if the target todo does not exist, or
+                 INVALID_ARGUMENT if update_mask references unknown fields.
             operationId: TodoService_UpdateTodo
             parameters:
                 - name: updateMask
                   in: query
+                  description: |-
+                    Set of field paths in todo to overwrite. Fields not listed are left
+                     unchanged. Use a single path of `*` to replace every mutable field.
                   schema:
                     type: string
                     format: field-mask
@@ -119,24 +148,33 @@ paths:
         get:
             tags:
                 - TodoService
-            description: WatchTodos streams todo snapshots from the server to the client.
+            description: |-
+                WatchTodos opens a server-side stream that emits a TodoEvent for every
+                 create, update, or delete that matches the supplied filter and ordering.
+                 The stream remains open until the client cancels or the server terminates it.
             operationId: TodoService_WatchTodos
             parameters:
                 - name: pageSize
                   in: query
+                  description: |-
+                    Optional. Maximum number of todo items returned in the initial snapshot
+                     before live events begin streaming.
                   schema:
                     type: integer
                     format: int32
                 - name: pageToken
                   in: query
+                  description: Optional. Page token used to resume from a prior snapshot.
                   schema:
                     type: string
                 - name: filter
                   in: query
+                  description: Optional. List filter expression. Same syntax as ListTodosRequest.filter.
                   schema:
                     type: string
                 - name: orderBy
                   in: query
+                  description: Optional. Order specification. Same syntax as ListTodosRequest.order_by.
                   schema:
                     type: string
             responses:
@@ -150,11 +188,14 @@ paths:
         get:
             tags:
                 - TodoService
-            description: GetTodo returns a todo item by id.
+            description: |-
+                GetTodo returns a single todo item by its id.
+                 Returns NOT_FOUND if no todo exists with the supplied id.
             operationId: TodoService_GetTodo
             parameters:
                 - name: id
                   in: path
+                  description: Unique identifier of the todo item to retrieve.
                   required: true
                   schema:
                     type: string
@@ -168,11 +209,14 @@ paths:
         delete:
             tags:
                 - TodoService
-            description: DeleteTodo deletes a todo item.
+            description: |-
+                DeleteTodo permanently removes a todo item by its id.
+                 Returns NOT_FOUND if no todo exists with the supplied id.
             operationId: TodoService_DeleteTodo
             parameters:
                 - name: id
                   in: path
+                  description: Unique identifier of the todo item to delete.
                   required: true
                   schema:
                     type: string
@@ -187,40 +231,66 @@ components:
             properties:
                 action:
                     type: string
+                    description: The operation to perform. One of `create`, `update`, or `delete`.
                 todo:
-                    $ref: '#/components/schemas/todo.v1.Todo'
+                    allOf:
+                        - $ref: '#/components/schemas/todo.v1.Todo'
+                    description: Payload for `create` and `update` actions. Ignored for `delete`.
                 id:
                     type: string
+                    description: Identifier of the target todo. Required for `delete` and `update`.
                 updateMask:
                     type: string
+                    description: |-
+                        Field mask used by `update` actions to limit which fields are overwritten.
+                         Ignored for `create` and `delete`.
                     format: field-mask
+            description: |-
+                SyncTodoRequest is a single client message in the SyncTodos bidirectional
+                 stream. The action field selects which operation to perform on the server.
         todo.v1.Todo:
             type: object
             properties:
                 id:
                     type: string
+                    description: Server-assigned unique identifier. Read-only on create.
                 title:
                     type: string
+                    description: Short human-readable title.
                 content:
                     type: string
+                    description: Detailed description or notes for the todo item.
                 completed:
                     type: boolean
+                    description: Whether the todo item has been completed.
                 createTime:
                     type: string
+                    description: Time at which the todo item was created. Server-assigned, read-only.
                     format: date-time
                 updateTime:
                     type: string
+                    description: Time at which the todo item was last modified. Server-assigned, read-only.
                     format: date-time
+            description: Todo is the canonical representation of a todo item.
         todo.v1.TodoEvent:
             type: object
             properties:
                 action:
                     type: string
+                    description: The change that occurred. One of `created`, `updated`, or `deleted`.
                 todo:
-                    $ref: '#/components/schemas/todo.v1.Todo'
+                    allOf:
+                        - $ref: '#/components/schemas/todo.v1.Todo'
+                    description: |-
+                        The todo item after the change. For `deleted` events only the id field
+                         is guaranteed to be populated.
                 eventTime:
                     type: string
+                    description: Time at which the change was observed by the server.
                     format: date-time
+            description: |-
+                TodoEvent is a server-sent message describing a change to a todo item.
+                 It is emitted by both WatchTodos and SyncTodos streams.
         todo.v1.TodoSet:
             type: object
             properties:
@@ -228,7 +298,12 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/todo.v1.Todo'
+                    description: The page of todo items in the order requested by ListTodosRequest.order_by.
                 nextPageToken:
                     type: string
+                    description: |-
+                        Token used to retrieve the next page via ListTodosRequest.page_token.
+                         Empty when there are no more results.
+            description: TodoSet is a paginated collection of todo items returned by ListTodos.
 tags:
     - name: TodoService
