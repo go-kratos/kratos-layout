@@ -118,22 +118,6 @@ Default local ports are configured in `configs/config.yaml`:
 - HTTP: `0.0.0.0:8000`
 - gRPC: `0.0.0.0:9000`
 
-## Sample API Smoke Test
-
-After starting the server, create a sample resource:
-
-```bash
-curl -X POST http://localhost:8000/v1/todos/create \
-  -H 'Content-Type: application/json' \
-  -d '{"title":"write docs","content":"update README","completed":false}'
-```
-
-List sample resources:
-
-```bash
-curl 'http://localhost:8000/v1/todos/list?pageSize=20'
-```
-
 ## Docker
 
 ```bash

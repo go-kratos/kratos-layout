@@ -125,8 +125,7 @@ tests exercise the actual storage backend (in-memory in the template).
 ## Generation & generated files
 
 Regenerate via `make api`, `make config`, or `make all`; never hand-edit
-`*.pb.go`, `*_grpc.pb.go`, `*_http.pb.go`, `wire_gen.go`, or
-`openapi.yaml`.
+`*.pb.go`, `*_grpc.pb.go`, `*_http.pb.go`, or `wire_gen.go`.
 
 ## Naming & error reasons
 
