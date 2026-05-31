@@ -1,8 +1,7 @@
 # Repository Guidelines
 
 This is a Kratos service template. This file owns the layering contract
-agents must follow when changing the template; build commands and other
-operational details live in `README.md`.
+agents must follow when changing the template.
 
 ## Project structure
 
@@ -92,10 +91,6 @@ design rather than add the import.
 - _Errors_: map driver errors to `biz` typed errors so callers above
   never branch on the driver.
 
-The template ships an in-memory repo so the sample runs without external
-services — DO and PO collapse because storage is a map. When introducing
-a real storage driver, follow the rules above.
-
 **server**
 
 - Construct HTTP/gRPC servers, apply middleware, register services. No
@@ -120,7 +115,7 @@ a real storage driver, follow the rules above.
 
 Tests live beside the code they cover (`*_test.go`). Test layers in
 isolation: service tests fake the usecase, biz tests fake the repo, data
-tests exercise the actual storage backend (in-memory in the template).
+tests exercise repo implementations at the storage boundary.
 
 ## Generation & generated files
 
