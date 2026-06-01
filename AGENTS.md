@@ -61,6 +61,8 @@ design rather than add the import.
 - Embed `Unimplemented<Resource>ServiceServer`.
 - Parse AIP list requests via `filtering` / `ordering` / `pagination`;
   apply `fieldmask.Update` for partial updates.
+- Validate request inputs at the service boundary before delegating to the
+  usecase.
 - Return `biz` errors. No business rules, no storage access, no PO.
 
 **biz (DO only)**
@@ -72,7 +74,6 @@ design rather than add the import.
 - Owns `ListOption` helpers — `ListFilter`, `ListOrderBy`, `ListOffset`,
   `ListLimit` — so callers compose queries without leaking storage
   primitives.
-- Validates inputs at the usecase boundary before delegating to the repo.
 
 **data (DO ↔ PO)**
 
