@@ -16,7 +16,7 @@ paths:
                 - TodoService
             description: |-
                 CreateTodo creates a new todo item and returns the persisted record
-                 with the server-assigned id, create_time, and update_time populated.
+                 with the server-assigned id, created_at, and updated_at populated.
                  Returns INVALID_ARGUMENT if the request payload fails validation.
             operationId: TodoService_CreateTodo
             requestBody:
@@ -65,7 +65,7 @@ paths:
                         * `title` (i.e. `title:"bug"`)
                         * `content` (i.e. `content:"docs"`)
                         * `completed` (i.e. `completed` or `NOT completed`)
-                        * `create_time` range (i.e. `create_time>="2026-01-01T00:00:00Z"`)
+                        * `created_at` range (i.e. `created_at>="2026-01-01T00:00:00Z"`)
                   schema:
                     type: string
                 - name: orderBy
@@ -75,9 +75,9 @@ paths:
                      Supported fields:
                         * `id`
                         * `title`
-                        * `create_time`
-                        * `update_time`
-                     Append ` desc` to a field for descending order, e.g. `create_time desc`.
+                        * `created_at`
+                        * `updated_at`
+                     Append ` desc` to a field for descending order, e.g. `created_at desc`.
                      Defaults to ascending order when no direction is supplied.
                   schema:
                     type: string
@@ -210,7 +210,8 @@ paths:
             tags:
                 - TodoService
             description: |-
-                DeleteTodo permanently removes a todo item by its id.
+                DeleteTodo soft-deletes a todo item by its id. The record is retained by
+                 the server but no longer appears in GetTodo or ListTodos results.
                  Returns NOT_FOUND if no todo exists with the supplied id.
             operationId: TodoService_DeleteTodo
             parameters:
@@ -253,7 +254,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: Server-assigned unique identifier. Read-only on create.
+                    description: Application-generated UUIDv7 identifier. Read-only on create.
                 title:
                     type: string
                     description: Short human-readable title.
@@ -263,11 +264,11 @@ components:
                 completed:
                     type: boolean
                     description: Whether the todo item has been completed.
-                createTime:
+                createdAt:
                     type: string
                     description: Time at which the todo item was created. Server-assigned, read-only.
                     format: date-time
-                updateTime:
+                updatedAt:
                     type: string
                     description: Time at which the todo item was last modified. Server-assigned, read-only.
                     format: date-time

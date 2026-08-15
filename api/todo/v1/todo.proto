@@ -18,7 +18,7 @@ option java_outer_classname = "TodoProto";
 // together with AIP-style list filtering, ordering, and pagination.
 service TodoService {
   // CreateTodo creates a new todo item and returns the persisted record
-  // with the server-assigned id, create_time, and update_time populated.
+  // with the server-assigned id, created_at, and updated_at populated.
   // Returns INVALID_ARGUMENT if the request payload fails validation.
   rpc CreateTodo (CreateTodoRequest) returns (Todo) {
     option (google.api.http) = {
@@ -56,7 +56,8 @@ service TodoService {
     };
   }
 
-  // DeleteTodo permanently removes a todo item by its id.
+  // DeleteTodo soft-deletes a todo item by its id. The record is retained by
+  // the server but no longer appears in GetTodo or ListTodos results.
   // Returns NOT_FOUND if no todo exists with the supplied id.
   rpc DeleteTodo (DeleteTodoRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
@@ -87,8 +88,8 @@ service TodoService {
 
 // Todo is the canonical representation of a todo item.
 message Todo {
-  // Server-assigned unique identifier. Read-only on create.
-  int64 id = 1;
+  // Application-generated UUIDv7 identifier. Read-only on create.
+  string id = 1;
   // Short human-readable title.
   string title = 2;
   // Detailed description or notes for the todo item.
@@ -96,9 +97,9 @@ message Todo {
   // Whether the todo item has been completed.
   bool completed = 4;
   // Time at which the todo item was created. Server-assigned, read-only.
-  google.protobuf.Timestamp create_time = 5;
+  google.protobuf.Timestamp created_at = 5;
   // Time at which the todo item was last modified. Server-assigned, read-only.
-  google.protobuf.Timestamp update_time = 6;
+  google.protobuf.Timestamp updated_at = 6;
 }
 
 // TodoSet is a paginated collection of todo items returned by ListTodos.
@@ -112,7 +113,7 @@ message TodoSet {
 
 // CreateTodoRequest is the input for TodoService.CreateTodo.
 message CreateTodoRequest {
-  // The todo item to create. The id, create_time, and update_time fields are
+  // The todo item to create. The id, created_at, and updated_at fields are
   // ignored on input and populated by the server in the response.
   Todo todo = 1 [(google.api.field_behavior) = REQUIRED];
 }
@@ -120,7 +121,7 @@ message CreateTodoRequest {
 // GetTodoRequest is the input for TodoService.GetTodo.
 message GetTodoRequest {
   // Unique identifier of the todo item to retrieve.
-  int64 id = 1 [(google.api.field_behavior) = REQUIRED];
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // ListTodosRequest is the input for TodoService.ListTodos.
@@ -136,15 +137,15 @@ message ListTodosRequest {
   //    * `title` (i.e. `title:"bug"`)
   //    * `content` (i.e. `content:"docs"`)
   //    * `completed` (i.e. `completed` or `NOT completed`)
-  //    * `create_time` range (i.e. `create_time>="2026-01-01T00:00:00Z"`)
+  //    * `created_at` range (i.e. `created_at>="2026-01-01T00:00:00Z"`)
   string filter = 3;
   // Optional. A comma-separated list of fields to order by.
   // Supported fields:
   //    * `id`
   //    * `title`
-  //    * `create_time`
-  //    * `update_time`
-  // Append ` desc` to a field for descending order, e.g. `create_time desc`.
+  //    * `created_at`
+  //    * `updated_at`
+  // Append ` desc` to a field for descending order, e.g. `created_at desc`.
   // Defaults to ascending order when no direction is supplied.
   string order_by = 4;
 }
@@ -162,7 +163,7 @@ message UpdateTodoRequest {
 // DeleteTodoRequest is the input for TodoService.DeleteTodo.
 message DeleteTodoRequest {
   // Unique identifier of the todo item to delete.
-  int64 id = 1 [(google.api.field_behavior) = REQUIRED];
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // WatchTodosRequest is the input for TodoService.WatchTodos.
@@ -187,7 +188,7 @@ message SyncTodoRequest {
   // Payload for `create` and `update` actions. Ignored for `delete`.
   Todo todo = 2;
   // Identifier of the target todo. Required for `delete` and `update`.
-  int64 id = 3;
+  string id = 3;
   // Field mask used by `update` actions to limit which fields are overwritten.
   // Ignored for `create` and `delete`.
   google.protobuf.FieldMask update_mask = 4;

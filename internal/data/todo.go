@@ -1,44 +1,55 @@
 package data
 
 import (
-	"cmp"
 	"context"
-	"slices"
-	"sync"
-	"time"
 
 	"github.com/go-kratos/kratos-layout/internal/biz"
+	"github.com/go-kratos/kratos-layout/internal/data/ent"
+	"github.com/go-kratos/kratos-layout/internal/data/ent/todo"
+
+	"github.com/go-kratos/aip-go/ents"
+	"github.com/google/uuid"
 )
+
+// toBiz converts a persisted todo into its domain representation. The status
+// column is a storage-level lifecycle marker and has no domain counterpart.
+func toBiz(po *ent.Todo) *biz.Todo {
+	if po == nil {
+		return nil
+	}
+	return &biz.Todo{
+		ID:        po.ID,
+		Title:     po.Title,
+		Content:   po.Content,
+		Completed: po.Completed,
+		CreatedAt: po.CreatedAt,
+		UpdatedAt: po.UpdatedAt,
+	}
+}
 
 type todoRepo struct {
 	data *Data
-
-	mu     sync.RWMutex
-	nextID int64
-	todos  map[int64]*biz.Todo
 }
 
 // NewTodoRepo creates a new TodoRepo instance.
 func NewTodoRepo(data *Data) biz.TodoRepo {
-	return &todoRepo{
-		data:   data,
-		nextID: 1,
-		todos:  make(map[int64]*biz.Todo),
-	}
+	return &todoRepo{data: data}
 }
 
-func (r *todoRepo) FindByID(_ context.Context, id int64) (*biz.Todo, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	todo, ok := r.todos[id]
-	if !ok {
-		return nil, biz.ErrTodoNotFound
+func (r *todoRepo) FindByID(ctx context.Context, id uuid.UUID) (*biz.Todo, error) {
+	po, err := r.data.db.Todo.Query().
+		Where(todo.IDEQ(id), todo.StatusEQ(todo.StatusActive)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, biz.ErrTodoNotFound
+		}
+		return nil, err
 	}
-	return cloneTodo(todo), nil
+	return toBiz(po), nil
 }
 
-func (r *todoRepo) ListTodos(_ context.Context, opts ...biz.ListOption) ([]*biz.Todo, error) {
+func (r *todoRepo) ListTodos(ctx context.Context, opts ...biz.ListOption) ([]*biz.Todo, error) {
 	options := biz.ListOptions{Limit: 20}
 	for _, opt := range opts {
 		opt(&options)
@@ -46,78 +57,69 @@ func (r *todoRepo) ListTodos(_ context.Context, opts ...biz.ListOption) ([]*biz.
 	if options.Offset < 0 || options.Limit <= 0 {
 		return nil, biz.ErrTodoInvalidArgument
 	}
-
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	todos := make([]*biz.Todo, 0, len(r.todos))
-	for _, todo := range r.todos {
-		todos = append(todos, cloneTodo(todo))
+	// Offset pagination needs a total order, so id is always appended as the
+	// last sort key: without it rows that tie on the requested field may be
+	// returned in a different order per query, duplicating or skipping records
+	// across pages. UUIDv7 ids are time-ordered, so id alone is a sensible
+	// default when the caller asks for nothing.
+	pos, err := r.data.db.Todo.Query().
+		Where(todo.StatusEQ(todo.StatusActive)).
+		Where(ents.ApplyFilter(options.Filter)).
+		Order(ents.ApplyOrderBy(options.OrderBy), todo.ByID()).
+		Offset(options.Offset).
+		Limit(options.Limit).
+		All(ctx)
+	if err != nil {
+		return nil, err
 	}
-	slices.SortFunc(todos, func(a, b *biz.Todo) int {
-		return cmp.Compare(a.ID, b.ID)
-	})
-
-	if options.Offset >= len(todos) {
-		return []*biz.Todo{}, nil
+	todos := make([]*biz.Todo, 0, len(pos))
+	for _, po := range pos {
+		todos = append(todos, toBiz(po))
 	}
-	end := options.Offset + options.Limit
-	if end > len(todos) {
-		end = len(todos)
-	}
-	return todos[options.Offset:end], nil
+	return todos, nil
 }
 
-func (r *todoRepo) CreateTodo(_ context.Context, todo *biz.Todo) (*biz.Todo, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	now := time.Now()
-	todo = cloneTodo(todo)
-	todo.ID = r.nextID
-	todo.CreateTime = now
-	todo.UpdateTime = now
-	r.todos[todo.ID] = cloneTodo(todo)
-	r.nextID++
-	return cloneTodo(todo), nil
-}
-
-func (r *todoRepo) UpdateTodo(_ context.Context, todo *biz.Todo) (*biz.Todo, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	current, ok := r.todos[todo.ID]
-	if !ok {
-		return nil, biz.ErrTodoNotFound
+func (r *todoRepo) CreateTodo(ctx context.Context, t *biz.Todo) (*biz.Todo, error) {
+	po, err := r.data.db.Todo.Create().
+		SetTitle(t.Title).
+		SetContent(t.Content).
+		SetCompleted(t.Completed).
+		SetStatus(todo.StatusActive).
+		Save(ctx)
+	if err != nil {
+		return nil, err
 	}
-	updated := cloneTodo(todo)
-	updated.CreateTime = current.CreateTime
-	updated.UpdateTime = time.Now()
-	r.todos[updated.ID] = cloneTodo(updated)
-	return cloneTodo(updated), nil
+	return toBiz(po), nil
 }
 
-func (r *todoRepo) DeleteTodo(_ context.Context, id int64) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+func (r *todoRepo) UpdateTodo(ctx context.Context, t *biz.Todo) (*biz.Todo, error) {
+	po, err := r.data.db.Todo.UpdateOneID(t.ID).
+		Where(todo.StatusEQ(todo.StatusActive)).
+		SetTitle(t.Title).
+		SetContent(t.Content).
+		SetCompleted(t.Completed).
+		Save(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, biz.ErrTodoNotFound
+		}
+		return nil, err
+	}
+	return toBiz(po), nil
+}
 
-	if _, ok := r.todos[id]; !ok {
+// DeleteTodo soft-deletes a todo by flipping its status to deleted. The row is
+// kept so it stays auditable, and every read path filters it out.
+func (r *todoRepo) DeleteTodo(ctx context.Context, id uuid.UUID) error {
+	affected, err := r.data.db.Todo.Update().
+		Where(todo.IDEQ(id), todo.StatusEQ(todo.StatusActive)).
+		SetStatus(todo.StatusDeleted).
+		Save(ctx)
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
 		return biz.ErrTodoNotFound
 	}
-	delete(r.todos, id)
 	return nil
-}
-
-func cloneTodo(todo *biz.Todo) *biz.Todo {
-	if todo == nil {
-		return nil
-	}
-	return &biz.Todo{
-		ID:         todo.ID,
-		Title:      todo.Title,
-		Content:    todo.Content,
-		Completed:  todo.Completed,
-		CreateTime: todo.CreateTime,
-		UpdateTime: todo.UpdateTime,
-	}
 }

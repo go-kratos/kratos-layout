@@ -8,7 +8,11 @@ server:
 data:
   database:
     driver: mysql
-    source: root:root@tcp(127.0.0.1:3306)/test?parseTime=True&loc=Local
+    source: root:root@tcp(127.0.0.1:3306)/test?timeout=5s&parseTime=True&loc=Local&charset=utf8mb4
+    # Development conveniences. Keep both false in production and apply schema
+    # changes as a separate reviewed step.
+    debug: true
+    auto_migrate: true
   redis:
     addr: 127.0.0.1:6379
     read_timeout: 0.2s

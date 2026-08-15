@@ -38,7 +38,7 @@ const (
 // together with AIP-style list filtering, ordering, and pagination.
 type TodoServiceClient interface {
 	// CreateTodo creates a new todo item and returns the persisted record
-	// with the server-assigned id, create_time, and update_time populated.
+	// with the server-assigned id, created_at, and updated_at populated.
 	// Returns INVALID_ARGUMENT if the request payload fails validation.
 	CreateTodo(ctx context.Context, in *CreateTodoRequest, opts ...grpc.CallOption) (*Todo, error)
 	// GetTodo returns a single todo item by its id.
@@ -54,7 +54,8 @@ type TodoServiceClient interface {
 	// Returns NOT_FOUND if the target todo does not exist, or
 	// INVALID_ARGUMENT if update_mask references unknown fields.
 	UpdateTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*Todo, error)
-	// DeleteTodo permanently removes a todo item by its id.
+	// DeleteTodo soft-deletes a todo item by its id. The record is retained by
+	// the server but no longer appears in GetTodo or ListTodos results.
 	// Returns NOT_FOUND if no todo exists with the supplied id.
 	DeleteTodo(ctx context.Context, in *DeleteTodoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// WatchTodos opens a server-side stream that emits a TodoEvent for every
@@ -167,7 +168,7 @@ type TodoService_SyncTodosClient = grpc.BidiStreamingClient[SyncTodoRequest, Tod
 // together with AIP-style list filtering, ordering, and pagination.
 type TodoServiceServer interface {
 	// CreateTodo creates a new todo item and returns the persisted record
-	// with the server-assigned id, create_time, and update_time populated.
+	// with the server-assigned id, created_at, and updated_at populated.
 	// Returns INVALID_ARGUMENT if the request payload fails validation.
 	CreateTodo(context.Context, *CreateTodoRequest) (*Todo, error)
 	// GetTodo returns a single todo item by its id.
@@ -183,7 +184,8 @@ type TodoServiceServer interface {
 	// Returns NOT_FOUND if the target todo does not exist, or
 	// INVALID_ARGUMENT if update_mask references unknown fields.
 	UpdateTodo(context.Context, *UpdateTodoRequest) (*Todo, error)
-	// DeleteTodo permanently removes a todo item by its id.
+	// DeleteTodo soft-deletes a todo item by its id. The record is retained by
+	// the server but no longer appears in GetTodo or ListTodos results.
 	// Returns NOT_FOUND if no todo exists with the supplied id.
 	DeleteTodo(context.Context, *DeleteTodoRequest) (*emptypb.Empty, error)
 	// WatchTodos opens a server-side stream that emits a TodoEvent for every

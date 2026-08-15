@@ -28,8 +28,8 @@ const (
 // Todo is the canonical representation of a todo item.
 type Todo struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Server-assigned unique identifier. Read-only on create.
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Application-generated UUIDv7 identifier. Read-only on create.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Short human-readable title.
 	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	// Detailed description or notes for the todo item.
@@ -37,9 +37,9 @@ type Todo struct {
 	// Whether the todo item has been completed.
 	Completed bool `protobuf:"varint,4,opt,name=completed,proto3" json:"completed,omitempty"`
 	// Time at which the todo item was created. Server-assigned, read-only.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// Time at which the todo item was last modified. Server-assigned, read-only.
-	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -74,11 +74,11 @@ func (*Todo) Descriptor() ([]byte, []int) {
 	return file_todo_v1_todo_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Todo) GetId() int64 {
+func (x *Todo) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 func (x *Todo) GetTitle() string {
@@ -102,16 +102,16 @@ func (x *Todo) GetCompleted() bool {
 	return false
 }
 
-func (x *Todo) GetCreateTime() *timestamppb.Timestamp {
+func (x *Todo) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.CreateTime
+		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *Todo) GetUpdateTime() *timestamppb.Timestamp {
+func (x *Todo) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.UpdateTime
+		return x.UpdatedAt
 	}
 	return nil
 }
@@ -175,7 +175,7 @@ func (x *TodoSet) GetNextPageToken() string {
 // CreateTodoRequest is the input for TodoService.CreateTodo.
 type CreateTodoRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The todo item to create. The id, create_time, and update_time fields are
+	// The todo item to create. The id, created_at, and updated_at fields are
 	// ignored on input and populated by the server in the response.
 	Todo          *Todo `protobuf:"bytes,1,opt,name=todo,proto3" json:"todo,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -223,7 +223,7 @@ func (x *CreateTodoRequest) GetTodo() *Todo {
 type GetTodoRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique identifier of the todo item to retrieve.
-	Id            int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -258,11 +258,11 @@ func (*GetTodoRequest) Descriptor() ([]byte, []int) {
 	return file_todo_v1_todo_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetTodoRequest) GetId() int64 {
+func (x *GetTodoRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 // ListTodosRequest is the input for TodoService.ListTodos.
@@ -279,16 +279,16 @@ type ListTodosRequest struct {
 	//   - `title` (i.e. `title:"bug"`)
 	//   - `content` (i.e. `content:"docs"`)
 	//   - `completed` (i.e. `completed` or `NOT completed`)
-	//   - `create_time` range (i.e. `create_time>="2026-01-01T00:00:00Z"`)
+	//   - `created_at` range (i.e. `created_at>="2026-01-01T00:00:00Z"`)
 	Filter string `protobuf:"bytes,3,opt,name=filter,proto3" json:"filter,omitempty"`
 	// Optional. A comma-separated list of fields to order by.
 	// Supported fields:
 	//   - `id`
 	//   - `title`
-	//   - `create_time`
-	//   - `update_time`
+	//   - `created_at`
+	//   - `updated_at`
 	//
-	// Append ` desc` to a field for descending order, e.g. `create_time desc`.
+	// Append ` desc` to a field for descending order, e.g. `created_at desc`.
 	// Defaults to ascending order when no direction is supplied.
 	OrderBy       string `protobuf:"bytes,4,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -414,7 +414,7 @@ func (x *UpdateTodoRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 type DeleteTodoRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique identifier of the todo item to delete.
-	Id            int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -449,11 +449,11 @@ func (*DeleteTodoRequest) Descriptor() ([]byte, []int) {
 	return file_todo_v1_todo_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *DeleteTodoRequest) GetId() int64 {
+func (x *DeleteTodoRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 // WatchTodosRequest is the input for TodoService.WatchTodos.
@@ -540,7 +540,7 @@ type SyncTodoRequest struct {
 	// Payload for `create` and `update` actions. Ignored for `delete`.
 	Todo *Todo `protobuf:"bytes,2,opt,name=todo,proto3" json:"todo,omitempty"`
 	// Identifier of the target todo. Required for `delete` and `update`.
-	Id int64 `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`
 	// Field mask used by `update` actions to limit which fields are overwritten.
 	// Ignored for `create` and `delete`.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,4,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -592,11 +592,11 @@ func (x *SyncTodoRequest) GetTodo() *Todo {
 	return nil
 }
 
-func (x *SyncTodoRequest) GetId() int64 {
+func (x *SyncTodoRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 func (x *SyncTodoRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
@@ -676,23 +676,23 @@ var File_todo_v1_todo_proto protoreflect.FileDescriptor
 
 const file_todo_v1_todo_proto_rawDesc = "" +
 	"\n" +
-	"\x12todo/v1/todo.proto\x12\atodo.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xde\x01\n" +
+	"\x12todo/v1/todo.proto\x12\atodo.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xda\x01\n" +
 	"\x04Todo\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x18\n" +
 	"\acontent\x18\x03 \x01(\tR\acontent\x12\x1c\n" +
-	"\tcompleted\x18\x04 \x01(\bR\tcompleted\x12;\n" +
-	"\vcreate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12;\n" +
-	"\vupdate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"updateTime\"V\n" +
+	"\tcompleted\x18\x04 \x01(\bR\tcompleted\x129\n" +
+	"\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"V\n" +
 	"\aTodoSet\x12#\n" +
 	"\x05todos\x18\x01 \x03(\v2\r.todo.v1.TodoR\x05todos\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\";\n" +
 	"\x11CreateTodoRequest\x12&\n" +
 	"\x04todo\x18\x01 \x01(\v2\r.todo.v1.TodoB\x03\xe0A\x02R\x04todo\"%\n" +
 	"\x0eGetTodoRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\x03B\x03\xe0A\x02R\x02id\"\x81\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x81\x01\n" +
 	"\x10ListTodosRequest\x12\x1b\n" +
 	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
@@ -704,7 +704,7 @@ const file_todo_v1_todo_proto_rawDesc = "" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x02R\n" +
 	"updateMask\"(\n" +
 	"\x11DeleteTodoRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\x03B\x03\xe0A\x02R\x02id\"\x82\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x82\x01\n" +
 	"\x11WatchTodosRequest\x12\x1b\n" +
 	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
@@ -714,7 +714,7 @@ const file_todo_v1_todo_proto_rawDesc = "" +
 	"\x0fSyncTodoRequest\x12\x16\n" +
 	"\x06action\x18\x01 \x01(\tR\x06action\x12!\n" +
 	"\x04todo\x18\x02 \x01(\v2\r.todo.v1.TodoR\x04todo\x12\x0e\n" +
-	"\x02id\x18\x03 \x01(\x03R\x02id\x12;\n" +
+	"\x02id\x18\x03 \x01(\tR\x02id\x12;\n" +
 	"\vupdate_mask\x18\x04 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"\x81\x01\n" +
 	"\tTodoEvent\x12\x16\n" +
@@ -765,8 +765,8 @@ var file_todo_v1_todo_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),         // 12: google.protobuf.Empty
 }
 var file_todo_v1_todo_proto_depIdxs = []int32{
-	10, // 0: todo.v1.Todo.create_time:type_name -> google.protobuf.Timestamp
-	10, // 1: todo.v1.Todo.update_time:type_name -> google.protobuf.Timestamp
+	10, // 0: todo.v1.Todo.created_at:type_name -> google.protobuf.Timestamp
+	10, // 1: todo.v1.Todo.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 2: todo.v1.TodoSet.todos:type_name -> todo.v1.Todo
 	0,  // 3: todo.v1.CreateTodoRequest.todo:type_name -> todo.v1.Todo
 	0,  // 4: todo.v1.UpdateTodoRequest.todo:type_name -> todo.v1.Todo
