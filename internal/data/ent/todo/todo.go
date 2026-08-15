@@ -3,10 +3,10 @@
 package todo
 
 import (
-	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/go-kratos/kratos-layout/internal/biz"
 	"github.com/google/uuid"
 )
 
@@ -65,35 +65,11 @@ var (
 	DefaultContent string
 	// DefaultCompleted holds the default value on creation for the "completed" field.
 	DefaultCompleted bool
+	// DefaultStatus holds the default value on creation for the "status" field.
+	DefaultStatus biz.TodoStatus
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
-
-// Status defines the type for the "status" enum field.
-type Status string
-
-// StatusActive is the default value of the Status enum.
-const DefaultStatus = StatusActive
-
-// Status values.
-const (
-	StatusActive  Status = "active"
-	StatusDeleted Status = "deleted"
-)
-
-func (s Status) String() string {
-	return string(s)
-}
-
-// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
-func StatusValidator(s Status) error {
-	switch s {
-	case StatusActive, StatusDeleted:
-		return nil
-	default:
-		return fmt.Errorf("todo: invalid enum value for status field: %q", s)
-	}
-}
 
 // OrderOption defines the ordering options for the Todo queries.
 type OrderOption func(*sql.Selector)

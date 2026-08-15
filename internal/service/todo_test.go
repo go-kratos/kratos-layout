@@ -67,6 +67,7 @@ func (r *fakeTodoRepo) CreateTodo(_ context.Context, todo *biz.Todo) (*biz.Todo,
 	now := time.Now()
 	todo = cloneTodo(todo)
 	todo.ID = uuid.Must(uuid.NewV7())
+	todo.Status = biz.TodoStatusActive
 	todo.CreatedAt = now
 	todo.UpdatedAt = now
 	r.order = append(r.order, todo.ID)
@@ -80,6 +81,8 @@ func (r *fakeTodoRepo) UpdateTodo(_ context.Context, todo *biz.Todo) (*biz.Todo,
 		return nil, biz.ErrTodoNotFound
 	}
 	updated := cloneTodo(todo)
+	// status moves only through DeleteTodo, matching the real repo.
+	updated.Status = current.Status
 	updated.CreatedAt = current.CreatedAt
 	updated.UpdatedAt = time.Now()
 	r.todos[updated.ID] = cloneTodo(updated)
@@ -122,6 +125,9 @@ func TestTodoServiceCRUD(t *testing.T) {
 	if created.GetCreatedAt() == nil || created.GetUpdatedAt() == nil {
 		t.Fatal("CreateTodo() did not set timestamps")
 	}
+	if created.GetStatus() != v1.TodoStatus_TODO_STATUS_ACTIVE {
+		t.Fatalf("CreateTodo() status = %v, want active", created.GetStatus())
+	}
 
 	got, err := svc.GetTodo(ctx, &v1.GetTodoRequest{Id: created.GetId()})
 	if err != nil {
@@ -147,6 +153,10 @@ func TestTodoServiceCRUD(t *testing.T) {
 	}
 	if updated.GetContent() != "cover todo CRUD" {
 		t.Fatalf("UpdateTodo() content = %q, want original content", updated.GetContent())
+	}
+	// status is read-only: an update cannot move it, only DeleteTodo can.
+	if updated.GetStatus() != v1.TodoStatus_TODO_STATUS_ACTIVE {
+		t.Fatalf("UpdateTodo() status = %v, want active", updated.GetStatus())
 	}
 
 	if _, err := svc.DeleteTodo(ctx, &v1.DeleteTodoRequest{Id: created.GetId()}); err != nil {

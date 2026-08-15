@@ -25,6 +25,60 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// TodoStatus is the lifecycle state of a todo item.
+type TodoStatus int32
+
+const (
+	// Default value. Never returned by the server.
+	TodoStatus_TODO_STATUS_UNSPECIFIED TodoStatus = 0
+	// The item is live and appears in reads.
+	TodoStatus_TODO_STATUS_ACTIVE TodoStatus = 1
+	// The item has been soft-deleted: the record is retained by the server but no
+	// longer appears in GetTodo or ListTodos results.
+	TodoStatus_TODO_STATUS_DELETED TodoStatus = 2
+)
+
+// Enum value maps for TodoStatus.
+var (
+	TodoStatus_name = map[int32]string{
+		0: "TODO_STATUS_UNSPECIFIED",
+		1: "TODO_STATUS_ACTIVE",
+		2: "TODO_STATUS_DELETED",
+	}
+	TodoStatus_value = map[string]int32{
+		"TODO_STATUS_UNSPECIFIED": 0,
+		"TODO_STATUS_ACTIVE":      1,
+		"TODO_STATUS_DELETED":     2,
+	}
+)
+
+func (x TodoStatus) Enum() *TodoStatus {
+	p := new(TodoStatus)
+	*p = x
+	return p
+}
+
+func (x TodoStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TodoStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_todo_v1_todo_proto_enumTypes[0].Descriptor()
+}
+
+func (TodoStatus) Type() protoreflect.EnumType {
+	return &file_todo_v1_todo_proto_enumTypes[0]
+}
+
+func (x TodoStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TodoStatus.Descriptor instead.
+func (TodoStatus) EnumDescriptor() ([]byte, []int) {
+	return file_todo_v1_todo_proto_rawDescGZIP(), []int{0}
+}
+
 // Todo is the canonical representation of a todo item.
 type Todo struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -39,7 +93,10 @@ type Todo struct {
 	// Time at which the todo item was created. Server-assigned, read-only.
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// Time at which the todo item was last modified. Server-assigned, read-only.
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// Lifecycle state. Server-assigned, read-only: call DeleteTodo to move an
+	// item to TODO_STATUS_DELETED.
+	Status        TodoStatus `protobuf:"varint,7,opt,name=status,proto3,enum=todo.v1.TodoStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -114,6 +171,13 @@ func (x *Todo) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *Todo) GetStatus() TodoStatus {
+	if x != nil {
+		return x.Status
+	}
+	return TodoStatus_TODO_STATUS_UNSPECIFIED
 }
 
 // TodoSet is a paginated collection of todo items returned by ListTodos.
@@ -676,7 +740,7 @@ var File_todo_v1_todo_proto protoreflect.FileDescriptor
 
 const file_todo_v1_todo_proto_rawDesc = "" +
 	"\n" +
-	"\x12todo/v1/todo.proto\x12\atodo.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xda\x01\n" +
+	"\x12todo/v1/todo.proto\x12\atodo.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x87\x02\n" +
 	"\x04Todo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x18\n" +
@@ -685,7 +749,8 @@ const file_todo_v1_todo_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"V\n" +
+	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12+\n" +
+	"\x06status\x18\a \x01(\x0e2\x13.todo.v1.TodoStatusR\x06status\"V\n" +
 	"\aTodoSet\x12#\n" +
 	"\x05todos\x18\x01 \x03(\v2\r.todo.v1.TodoR\x05todos\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\";\n" +
@@ -721,7 +786,12 @@ const file_todo_v1_todo_proto_rawDesc = "" +
 	"\x06action\x18\x01 \x01(\tR\x06action\x12!\n" +
 	"\x04todo\x18\x02 \x01(\v2\r.todo.v1.TodoR\x04todo\x129\n" +
 	"\n" +
-	"event_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\teventTime2\xe9\x04\n" +
+	"event_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\teventTime*Z\n" +
+	"\n" +
+	"TodoStatus\x12\x1b\n" +
+	"\x17TODO_STATUS_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12TODO_STATUS_ACTIVE\x10\x01\x12\x17\n" +
+	"\x13TODO_STATUS_DELETED\x10\x022\xe9\x04\n" +
 	"\vTodoService\x12W\n" +
 	"\n" +
 	"CreateTodo\x12\x1a.todo.v1.CreateTodoRequest\x1a\r.todo.v1.Todo\"\x1e\x82\xd3\xe4\x93\x02\x18:\x04todo\"\x10/v1/todos/create\x12P\n" +
@@ -748,52 +818,55 @@ func file_todo_v1_todo_proto_rawDescGZIP() []byte {
 	return file_todo_v1_todo_proto_rawDescData
 }
 
+var file_todo_v1_todo_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_todo_v1_todo_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_todo_v1_todo_proto_goTypes = []any{
-	(*Todo)(nil),                  // 0: todo.v1.Todo
-	(*TodoSet)(nil),               // 1: todo.v1.TodoSet
-	(*CreateTodoRequest)(nil),     // 2: todo.v1.CreateTodoRequest
-	(*GetTodoRequest)(nil),        // 3: todo.v1.GetTodoRequest
-	(*ListTodosRequest)(nil),      // 4: todo.v1.ListTodosRequest
-	(*UpdateTodoRequest)(nil),     // 5: todo.v1.UpdateTodoRequest
-	(*DeleteTodoRequest)(nil),     // 6: todo.v1.DeleteTodoRequest
-	(*WatchTodosRequest)(nil),     // 7: todo.v1.WatchTodosRequest
-	(*SyncTodoRequest)(nil),       // 8: todo.v1.SyncTodoRequest
-	(*TodoEvent)(nil),             // 9: todo.v1.TodoEvent
-	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil), // 11: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),         // 12: google.protobuf.Empty
+	(TodoStatus)(0),               // 0: todo.v1.TodoStatus
+	(*Todo)(nil),                  // 1: todo.v1.Todo
+	(*TodoSet)(nil),               // 2: todo.v1.TodoSet
+	(*CreateTodoRequest)(nil),     // 3: todo.v1.CreateTodoRequest
+	(*GetTodoRequest)(nil),        // 4: todo.v1.GetTodoRequest
+	(*ListTodosRequest)(nil),      // 5: todo.v1.ListTodosRequest
+	(*UpdateTodoRequest)(nil),     // 6: todo.v1.UpdateTodoRequest
+	(*DeleteTodoRequest)(nil),     // 7: todo.v1.DeleteTodoRequest
+	(*WatchTodosRequest)(nil),     // 8: todo.v1.WatchTodosRequest
+	(*SyncTodoRequest)(nil),       // 9: todo.v1.SyncTodoRequest
+	(*TodoEvent)(nil),             // 10: todo.v1.TodoEvent
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil), // 12: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),         // 13: google.protobuf.Empty
 }
 var file_todo_v1_todo_proto_depIdxs = []int32{
-	10, // 0: todo.v1.Todo.created_at:type_name -> google.protobuf.Timestamp
-	10, // 1: todo.v1.Todo.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 2: todo.v1.TodoSet.todos:type_name -> todo.v1.Todo
-	0,  // 3: todo.v1.CreateTodoRequest.todo:type_name -> todo.v1.Todo
-	0,  // 4: todo.v1.UpdateTodoRequest.todo:type_name -> todo.v1.Todo
-	11, // 5: todo.v1.UpdateTodoRequest.update_mask:type_name -> google.protobuf.FieldMask
-	0,  // 6: todo.v1.SyncTodoRequest.todo:type_name -> todo.v1.Todo
-	11, // 7: todo.v1.SyncTodoRequest.update_mask:type_name -> google.protobuf.FieldMask
-	0,  // 8: todo.v1.TodoEvent.todo:type_name -> todo.v1.Todo
-	10, // 9: todo.v1.TodoEvent.event_time:type_name -> google.protobuf.Timestamp
-	2,  // 10: todo.v1.TodoService.CreateTodo:input_type -> todo.v1.CreateTodoRequest
-	4,  // 11: todo.v1.TodoService.ListTodos:input_type -> todo.v1.ListTodosRequest
-	3,  // 12: todo.v1.TodoService.GetTodo:input_type -> todo.v1.GetTodoRequest
-	7,  // 13: todo.v1.TodoService.WatchTodos:input_type -> todo.v1.WatchTodosRequest
-	5,  // 14: todo.v1.TodoService.UpdateTodo:input_type -> todo.v1.UpdateTodoRequest
-	6,  // 15: todo.v1.TodoService.DeleteTodo:input_type -> todo.v1.DeleteTodoRequest
-	8,  // 16: todo.v1.TodoService.SyncTodos:input_type -> todo.v1.SyncTodoRequest
-	0,  // 17: todo.v1.TodoService.CreateTodo:output_type -> todo.v1.Todo
-	1,  // 18: todo.v1.TodoService.ListTodos:output_type -> todo.v1.TodoSet
-	0,  // 19: todo.v1.TodoService.GetTodo:output_type -> todo.v1.Todo
-	9,  // 20: todo.v1.TodoService.WatchTodos:output_type -> todo.v1.TodoEvent
-	0,  // 21: todo.v1.TodoService.UpdateTodo:output_type -> todo.v1.Todo
-	12, // 22: todo.v1.TodoService.DeleteTodo:output_type -> google.protobuf.Empty
-	9,  // 23: todo.v1.TodoService.SyncTodos:output_type -> todo.v1.TodoEvent
-	17, // [17:24] is the sub-list for method output_type
-	10, // [10:17] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	11, // 0: todo.v1.Todo.created_at:type_name -> google.protobuf.Timestamp
+	11, // 1: todo.v1.Todo.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 2: todo.v1.Todo.status:type_name -> todo.v1.TodoStatus
+	1,  // 3: todo.v1.TodoSet.todos:type_name -> todo.v1.Todo
+	1,  // 4: todo.v1.CreateTodoRequest.todo:type_name -> todo.v1.Todo
+	1,  // 5: todo.v1.UpdateTodoRequest.todo:type_name -> todo.v1.Todo
+	12, // 6: todo.v1.UpdateTodoRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 7: todo.v1.SyncTodoRequest.todo:type_name -> todo.v1.Todo
+	12, // 8: todo.v1.SyncTodoRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 9: todo.v1.TodoEvent.todo:type_name -> todo.v1.Todo
+	11, // 10: todo.v1.TodoEvent.event_time:type_name -> google.protobuf.Timestamp
+	3,  // 11: todo.v1.TodoService.CreateTodo:input_type -> todo.v1.CreateTodoRequest
+	5,  // 12: todo.v1.TodoService.ListTodos:input_type -> todo.v1.ListTodosRequest
+	4,  // 13: todo.v1.TodoService.GetTodo:input_type -> todo.v1.GetTodoRequest
+	8,  // 14: todo.v1.TodoService.WatchTodos:input_type -> todo.v1.WatchTodosRequest
+	6,  // 15: todo.v1.TodoService.UpdateTodo:input_type -> todo.v1.UpdateTodoRequest
+	7,  // 16: todo.v1.TodoService.DeleteTodo:input_type -> todo.v1.DeleteTodoRequest
+	9,  // 17: todo.v1.TodoService.SyncTodos:input_type -> todo.v1.SyncTodoRequest
+	1,  // 18: todo.v1.TodoService.CreateTodo:output_type -> todo.v1.Todo
+	2,  // 19: todo.v1.TodoService.ListTodos:output_type -> todo.v1.TodoSet
+	1,  // 20: todo.v1.TodoService.GetTodo:output_type -> todo.v1.Todo
+	10, // 21: todo.v1.TodoService.WatchTodos:output_type -> todo.v1.TodoEvent
+	1,  // 22: todo.v1.TodoService.UpdateTodo:output_type -> todo.v1.Todo
+	13, // 23: todo.v1.TodoService.DeleteTodo:output_type -> google.protobuf.Empty
+	10, // 24: todo.v1.TodoService.SyncTodos:output_type -> todo.v1.TodoEvent
+	18, // [18:25] is the sub-list for method output_type
+	11, // [11:18] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_todo_v1_todo_proto_init() }
@@ -806,13 +879,14 @@ func file_todo_v1_todo_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_todo_v1_todo_proto_rawDesc), len(file_todo_v1_todo_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_todo_v1_todo_proto_goTypes,
 		DependencyIndexes: file_todo_v1_todo_proto_depIdxs,
+		EnumInfos:         file_todo_v1_todo_proto_enumTypes,
 		MessageInfos:      file_todo_v1_todo_proto_msgTypes,
 	}.Build()
 	File_todo_v1_todo_proto = out.File

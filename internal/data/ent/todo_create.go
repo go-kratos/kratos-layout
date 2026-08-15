@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/go-kratos/kratos-layout/internal/biz"
 	"github.com/go-kratos/kratos-layout/internal/data/ent/todo"
 	"github.com/google/uuid"
 )
@@ -92,13 +93,13 @@ func (_c *TodoCreate) SetNillableCompleted(v *bool) *TodoCreate {
 }
 
 // SetStatus sets the "status" field.
-func (_c *TodoCreate) SetStatus(v todo.Status) *TodoCreate {
+func (_c *TodoCreate) SetStatus(v biz.TodoStatus) *TodoCreate {
 	_c.mutation.SetStatus(v)
 	return _c
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (_c *TodoCreate) SetNillableStatus(v *todo.Status) *TodoCreate {
+func (_c *TodoCreate) SetNillableStatus(v *biz.TodoStatus) *TodoCreate {
 	if v != nil {
 		_c.SetStatus(*v)
 	}
@@ -204,11 +205,6 @@ func (_c *TodoCreate) check() error {
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Todo.status"`)}
 	}
-	if v, ok := _c.mutation.Status(); ok {
-		if err := todo.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Todo.status": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -265,7 +261,7 @@ func (_c *TodoCreate) createSpec() (*Todo, *sqlgraph.CreateSpec) {
 		_node.Completed = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
-		_spec.SetField(todo.FieldStatus, field.TypeEnum, value)
+		_spec.SetField(todo.FieldStatus, field.TypeInt32, value)
 		_node.Status = value
 	}
 	return _node, _spec

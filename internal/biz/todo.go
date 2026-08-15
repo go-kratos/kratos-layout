@@ -20,12 +20,27 @@ var (
 	ErrTodoInvalidArgument = errors.BadRequest(v1.ErrorReason_TODO_INVALID_ARGUMENT.String(), "invalid todo argument")
 )
 
+// TodoStatus is the lifecycle state of a todo. Values match the api enum so
+// the two can be mapped without a lookup table.
+type TodoStatus int32
+
+const (
+	// TodoStatusUnspecified is the zero value; it is never persisted.
+	TodoStatusUnspecified TodoStatus = 0
+	// TodoStatusActive marks a live todo.
+	TodoStatusActive TodoStatus = 1
+	// TodoStatusDeleted marks a soft-deleted todo. The record is retained but
+	// hidden from reads.
+	TodoStatusDeleted TodoStatus = 2
+)
+
 // Todo is a Todo model.
 type Todo struct {
 	ID        uuid.UUID
 	Title     string
 	Content   string
 	Completed bool
+	Status    TodoStatus
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

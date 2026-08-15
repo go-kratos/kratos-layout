@@ -272,6 +272,12 @@ components:
                     type: string
                     description: Time at which the todo item was last modified. Server-assigned, read-only.
                     format: date-time
+                status:
+                    type: integer
+                    description: |-
+                        Lifecycle state. Server-assigned, read-only: call DeleteTodo to move an
+                         item to TODO_STATUS_DELETED.
+                    format: enum
             description: Todo is the canonical representation of a todo item.
         todo.v1.TodoEvent:
             type: object

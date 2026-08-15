@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/go-kratos/kratos-layout/internal/biz"
 	"github.com/go-kratos/kratos-layout/internal/data/ent/todo"
 	"github.com/google/uuid"
 )
@@ -29,7 +30,7 @@ type Todo struct {
 	// Completed holds the value of the "completed" field.
 	Completed bool `json:"completed,omitempty"`
 	// Status holds the value of the "status" field.
-	Status       todo.Status `json:"status,omitempty"`
+	Status       biz.TodoStatus `json:"status,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -40,7 +41,9 @@ func (*Todo) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case todo.FieldCompleted:
 			values[i] = new(sql.NullBool)
-		case todo.FieldTitle, todo.FieldContent, todo.FieldStatus:
+		case todo.FieldStatus:
+			values[i] = new(sql.NullInt64)
+		case todo.FieldTitle, todo.FieldContent:
 			values[i] = new(sql.NullString)
 		case todo.FieldCreatedAt, todo.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -98,10 +101,10 @@ func (_m *Todo) assignValues(columns []string, values []any) error {
 				_m.Completed = value.Bool
 			}
 		case todo.FieldStatus:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				_m.Status = todo.Status(value.String)
+				_m.Status = biz.TodoStatus(value.Int64)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])

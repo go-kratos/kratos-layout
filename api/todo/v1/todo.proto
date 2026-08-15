@@ -86,6 +86,17 @@ service TodoService {
   }
 }
 
+// TodoStatus is the lifecycle state of a todo item.
+enum TodoStatus {
+  // Default value. Never returned by the server.
+  TODO_STATUS_UNSPECIFIED = 0;
+  // The item is live and appears in reads.
+  TODO_STATUS_ACTIVE = 1;
+  // The item has been soft-deleted: the record is retained by the server but no
+  // longer appears in GetTodo or ListTodos results.
+  TODO_STATUS_DELETED = 2;
+}
+
 // Todo is the canonical representation of a todo item.
 message Todo {
   // Application-generated UUIDv7 identifier. Read-only on create.
@@ -100,6 +111,9 @@ message Todo {
   google.protobuf.Timestamp created_at = 5;
   // Time at which the todo item was last modified. Server-assigned, read-only.
   google.protobuf.Timestamp updated_at = 6;
+  // Lifecycle state. Server-assigned, read-only: call DeleteTodo to move an
+  // item to TODO_STATUS_DELETED.
+  TodoStatus status = 7;
 }
 
 // TodoSet is a paginated collection of todo items returned by ListTodos.

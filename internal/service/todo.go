@@ -222,8 +222,12 @@ func (s *TodoService) SyncTodos(stream v1.TodoService_SyncTodosServer) error {
 			if _, err := s.DeleteTodo(stream.Context(), &v1.DeleteTodoRequest{Id: id}); err != nil {
 				return err
 			}
-			// Only the id is meaningful once the record is gone.
-			event = newTodoEvent("deleted", &v1.Todo{Id: id})
+			// The record is hidden from reads now, so only the id and the
+			// resulting status are meaningful.
+			event = newTodoEvent("deleted", &v1.Todo{
+				Id:     id,
+				Status: v1.TodoStatus_TODO_STATUS_DELETED,
+			})
 		default:
 			return biz.ErrTodoInvalidArgument
 		}
@@ -281,7 +285,22 @@ func convertTodoReply(in *biz.Todo) *v1.Todo {
 		Title:     in.Title,
 		Content:   in.Content,
 		Completed: in.Completed,
+		Status:    convertTodoStatus(in.Status),
 		CreatedAt: timestamppb.New(in.CreatedAt),
 		UpdatedAt: timestamppb.New(in.UpdatedAt),
+	}
+}
+
+// convertTodoStatus maps a domain status onto the api enum. The two share their
+// numeric values, but the mapping is written out so neither side can drift into
+// the other silently.
+func convertTodoStatus(in biz.TodoStatus) v1.TodoStatus {
+	switch in {
+	case biz.TodoStatusActive:
+		return v1.TodoStatus_TODO_STATUS_ACTIVE
+	case biz.TodoStatusDeleted:
+		return v1.TodoStatus_TODO_STATUS_DELETED
+	default:
+		return v1.TodoStatus_TODO_STATUS_UNSPECIFIED
 	}
 }

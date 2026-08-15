@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-kratos/kratos-layout/internal/biz"
 	"github.com/go-kratos/kratos-layout/internal/data/ent"
-	"github.com/go-kratos/kratos-layout/internal/data/ent/todo"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -108,8 +107,8 @@ func TestTodoRepoDeleteIsSoft(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ent Get() after delete error = %v", err)
 	}
-	if po.Status != todo.StatusDeleted {
-		t.Fatalf("status after delete = %q, want %q", po.Status, todo.StatusDeleted)
+	if po.Status != biz.TodoStatusDeleted {
+		t.Fatalf("status after delete = %d, want %d", po.Status, biz.TodoStatusDeleted)
 	}
 
 	// Every read and write path hides it.

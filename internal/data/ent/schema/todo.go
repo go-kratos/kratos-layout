@@ -4,6 +4,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+
+	"github.com/go-kratos/kratos-layout/internal/biz"
 )
 
 // Todo holds the schema definition for the Todo entity.
@@ -25,9 +27,12 @@ func (Todo) Fields() []ent.Field {
 		field.String("title").Default(""),
 		field.String("content").Default(""),
 		field.Bool("completed").Default(false),
-		// status marks the row lifecycle: deletes flip it to "deleted" instead
-		// of removing the row, so every read filters on "active".
-		field.Enum("status").Values("active", "deleted").Default("active"),
+		// status marks the row lifecycle: deletes flip it to deleted instead of
+		// removing the row, so every read filters on active. Stored as an
+		// integer bound to the domain type, whose values match the api enum.
+		field.Int32("status").
+			GoType(biz.TodoStatus(0)).
+			Default(int32(biz.TodoStatusActive)),
 	}
 }
 

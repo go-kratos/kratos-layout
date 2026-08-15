@@ -12,7 +12,7 @@ import (
 )
 
 // toBiz converts a persisted todo into its domain representation. The status
-// column is a storage-level lifecycle marker and has no domain counterpart.
+// column is bound to biz.TodoStatus, so it carries over as-is.
 func toBiz(po *ent.Todo) *biz.Todo {
 	if po == nil {
 		return nil
@@ -22,6 +22,7 @@ func toBiz(po *ent.Todo) *biz.Todo {
 		Title:     po.Title,
 		Content:   po.Content,
 		Completed: po.Completed,
+		Status:    po.Status,
 		CreatedAt: po.CreatedAt,
 		UpdatedAt: po.UpdatedAt,
 	}
@@ -38,7 +39,7 @@ func NewTodoRepo(data *Data) biz.TodoRepo {
 
 func (r *todoRepo) FindByID(ctx context.Context, id uuid.UUID) (*biz.Todo, error) {
 	po, err := r.data.db.Todo.Query().
-		Where(todo.IDEQ(id), todo.StatusEQ(todo.StatusActive)).
+		Where(todo.IDEQ(id), todo.StatusEQ(biz.TodoStatusActive)).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -63,7 +64,7 @@ func (r *todoRepo) ListTodos(ctx context.Context, opts ...biz.ListOption) ([]*bi
 	// across pages. UUIDv7 ids are time-ordered, so id alone is a sensible
 	// default when the caller asks for nothing.
 	pos, err := r.data.db.Todo.Query().
-		Where(todo.StatusEQ(todo.StatusActive)).
+		Where(todo.StatusEQ(biz.TodoStatusActive)).
 		Where(ents.ApplyFilter(options.Filter)).
 		Order(ents.ApplyOrderBy(options.OrderBy), todo.ByID()).
 		Offset(options.Offset).
@@ -84,7 +85,7 @@ func (r *todoRepo) CreateTodo(ctx context.Context, t *biz.Todo) (*biz.Todo, erro
 		SetTitle(t.Title).
 		SetContent(t.Content).
 		SetCompleted(t.Completed).
-		SetStatus(todo.StatusActive).
+		SetStatus(biz.TodoStatusActive).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -93,8 +94,9 @@ func (r *todoRepo) CreateTodo(ctx context.Context, t *biz.Todo) (*biz.Todo, erro
 }
 
 func (r *todoRepo) UpdateTodo(ctx context.Context, t *biz.Todo) (*biz.Todo, error) {
+	// status is not updatable here: it moves only through DeleteTodo.
 	po, err := r.data.db.Todo.UpdateOneID(t.ID).
-		Where(todo.StatusEQ(todo.StatusActive)).
+		Where(todo.StatusEQ(biz.TodoStatusActive)).
 		SetTitle(t.Title).
 		SetContent(t.Content).
 		SetCompleted(t.Completed).
@@ -112,8 +114,8 @@ func (r *todoRepo) UpdateTodo(ctx context.Context, t *biz.Todo) (*biz.Todo, erro
 // kept so it stays auditable, and every read path filters it out.
 func (r *todoRepo) DeleteTodo(ctx context.Context, id uuid.UUID) error {
 	affected, err := r.data.db.Todo.Update().
-		Where(todo.IDEQ(id), todo.StatusEQ(todo.StatusActive)).
-		SetStatus(todo.StatusDeleted).
+		Where(todo.IDEQ(id), todo.StatusEQ(biz.TodoStatusActive)).
+		SetStatus(biz.TodoStatusDeleted).
 		Save(ctx)
 	if err != nil {
 		return err
