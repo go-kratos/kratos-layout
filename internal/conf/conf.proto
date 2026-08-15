@@ -27,8 +27,15 @@ message Server {
 
 message Data {
   message Database {
+    // Driver name registered with database/sql, e.g. "mysql".
     string driver = 1;
+    // Driver-specific DSN. Keep credentials out of version control.
     string source = 2;
+    // Log every generated statement. Development only.
+    bool debug = 3;
+    // Create or update tables from the ent schema on startup. Leave false in
+    // production and apply migrations as a separate, reviewed step.
+    bool auto_migrate = 4;
   }
   message Redis {
     string network = 1;
