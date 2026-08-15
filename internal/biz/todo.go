@@ -8,6 +8,7 @@ import (
 	v1 "github.com/go-kratos/kratos-layout/api/todo/v1"
 
 	"github.com/go-kratos/kratos/v3/errors"
+	"github.com/google/uuid"
 	"go.einride.tech/aip/filtering"
 	"go.einride.tech/aip/ordering"
 )
@@ -19,23 +20,38 @@ var (
 	ErrTodoInvalidArgument = errors.BadRequest(v1.ErrorReason_TODO_INVALID_ARGUMENT.String(), "invalid todo argument")
 )
 
+// TodoStatus is the lifecycle state of a todo. Values match the api enum so
+// the two can be mapped without a lookup table.
+type TodoStatus int32
+
+const (
+	// TodoStatusUnspecified is the zero value; it is never persisted.
+	TodoStatusUnspecified TodoStatus = 0
+	// TodoStatusActive marks a live todo.
+	TodoStatusActive TodoStatus = 1
+	// TodoStatusDeleted marks a soft-deleted todo. The record is retained but
+	// hidden from reads.
+	TodoStatusDeleted TodoStatus = 2
+)
+
 // Todo is a Todo model.
 type Todo struct {
-	ID         int64
-	Title      string
-	Content    string
-	Completed  bool
-	CreateTime time.Time
-	UpdateTime time.Time
+	ID        uuid.UUID
+	Title     string
+	Content   string
+	Completed bool
+	Status    TodoStatus
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // TodoRepo is a todo repo.
 type TodoRepo interface {
-	FindByID(context.Context, int64) (*Todo, error)
+	FindByID(context.Context, uuid.UUID) (*Todo, error)
 	ListTodos(context.Context, ...ListOption) ([]*Todo, error)
 	CreateTodo(context.Context, *Todo) (*Todo, error)
 	UpdateTodo(context.Context, *Todo) (*Todo, error)
-	DeleteTodo(context.Context, int64) error
+	DeleteTodo(context.Context, uuid.UUID) error
 }
 
 // ListOption configures todo list queries.
@@ -88,7 +104,10 @@ func NewTodoUsecase(repo TodoRepo) *TodoUsecase {
 }
 
 // GetTodo returns a todo by ID.
-func (uc *TodoUsecase) GetTodo(ctx context.Context, id int64) (*Todo, error) {
+func (uc *TodoUsecase) GetTodo(ctx context.Context, id uuid.UUID) (*Todo, error) {
+	if id == uuid.Nil {
+		return nil, ErrTodoInvalidArgument
+	}
 	return uc.repo.FindByID(ctx, id)
 }
 
@@ -107,7 +126,7 @@ func (uc *TodoUsecase) CreateTodo(ctx context.Context, todo *Todo) (*Todo, error
 
 // UpdateTodo updates a todo.
 func (uc *TodoUsecase) UpdateTodo(ctx context.Context, todo *Todo) (*Todo, error) {
-	if todo == nil || todo.ID <= 0 {
+	if todo == nil || todo.ID == uuid.Nil {
 		return nil, ErrTodoInvalidArgument
 	}
 	if err := validateTodo(todo); err != nil {
@@ -116,9 +135,9 @@ func (uc *TodoUsecase) UpdateTodo(ctx context.Context, todo *Todo) (*Todo, error
 	return uc.repo.UpdateTodo(ctx, todo)
 }
 
-// DeleteTodo deletes a todo.
-func (uc *TodoUsecase) DeleteTodo(ctx context.Context, id int64) error {
-	if id <= 0 {
+// DeleteTodo soft-deletes a todo.
+func (uc *TodoUsecase) DeleteTodo(ctx context.Context, id uuid.UUID) error {
+	if id == uuid.Nil {
 		return ErrTodoInvalidArgument
 	}
 	return uc.repo.DeleteTodo(ctx, id)

@@ -5,11 +5,11 @@ import (
 	"errors"
 	"io"
 	"strings"
-	"time"
 
 	v1 "github.com/go-kratos/kratos-layout/api/todo/v1"
 	"github.com/go-kratos/kratos-layout/internal/biz"
 
+	"github.com/google/uuid"
 	"go.einride.tech/aip/fieldmask"
 	"go.einride.tech/aip/filtering"
 	"go.einride.tech/aip/ordering"
@@ -45,7 +45,11 @@ func (s *TodoService) CreateTodo(ctx context.Context, req *v1.CreateTodoRequest)
 
 // GetTodo returns a todo item by ID.
 func (s *TodoService) GetTodo(ctx context.Context, req *v1.GetTodoRequest) (*v1.Todo, error) {
-	todo, err := s.uc.GetTodo(ctx, req.GetId())
+	id, err := parseTodoID(req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	todo, err := s.uc.GetTodo(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -56,12 +60,12 @@ func (s *TodoService) GetTodo(ctx context.Context, req *v1.GetTodoRequest) (*v1.
 func (s *TodoService) ListTodos(ctx context.Context, req *v1.ListTodosRequest) (*v1.TodoSet, error) {
 	declarations, err := filtering.NewDeclarations(
 		filtering.DeclareStandardFunctions(),
-		filtering.DeclareIdent("id", filtering.TypeInt),
+		filtering.DeclareIdent("id", filtering.TypeString),
 		filtering.DeclareIdent("title", filtering.TypeString),
 		filtering.DeclareIdent("content", filtering.TypeString),
 		filtering.DeclareIdent("completed", filtering.TypeBool),
-		filtering.DeclareIdent("create_time", filtering.TypeTimestamp),
-		filtering.DeclareIdent("update_time", filtering.TypeTimestamp),
+		filtering.DeclareIdent("created_at", filtering.TypeTimestamp),
+		filtering.DeclareIdent("updated_at", filtering.TypeTimestamp),
 	)
 	if err != nil {
 		return nil, err
@@ -78,7 +82,7 @@ func (s *TodoService) ListTodos(ctx context.Context, req *v1.ListTodosRequest) (
 	if err != nil {
 		return nil, err
 	}
-	if err := orderBy.ValidateForPaths("id", "title", "create_time", "update_time"); err != nil {
+	if err := orderBy.ValidateForPaths("id", "title", "created_at", "updated_at"); err != nil {
 		return nil, err
 	}
 	if req.PageSize <= 0 {
@@ -107,7 +111,7 @@ func (s *TodoService) ListTodos(ctx context.Context, req *v1.ListTodosRequest) (
 
 // UpdateTodo updates a todo item.
 func (s *TodoService) UpdateTodo(ctx context.Context, req *v1.UpdateTodoRequest) (*v1.Todo, error) {
-	if req.GetTodo().GetId() <= 0 || req.GetUpdateMask() == nil || len(req.GetUpdateMask().GetPaths()) == 0 {
+	if req.GetTodo().GetId() == "" || req.GetUpdateMask() == nil || len(req.GetUpdateMask().GetPaths()) == 0 {
 		return nil, biz.ErrTodoInvalidArgument
 	}
 	current, err := s.GetTodo(ctx, &v1.GetTodoRequest{Id: req.GetTodo().GetId()})
@@ -122,9 +126,13 @@ func (s *TodoService) UpdateTodo(ctx context.Context, req *v1.UpdateTodoRequest)
 	return convertTodoReply(todo), nil
 }
 
-// DeleteTodo deletes a todo item.
+// DeleteTodo soft-deletes a todo item.
 func (s *TodoService) DeleteTodo(ctx context.Context, req *v1.DeleteTodoRequest) (*emptypb.Empty, error) {
-	if err := s.uc.DeleteTodo(ctx, req.GetId()); err != nil {
+	id, err := parseTodoID(req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	if err := s.uc.DeleteTodo(ctx, id); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
@@ -134,12 +142,12 @@ func (s *TodoService) DeleteTodo(ctx context.Context, req *v1.DeleteTodoRequest)
 func (s *TodoService) WatchTodos(req *v1.WatchTodosRequest, stream v1.TodoService_WatchTodosServer) error {
 	declarations, err := filtering.NewDeclarations(
 		filtering.DeclareStandardFunctions(),
-		filtering.DeclareIdent("id", filtering.TypeInt),
+		filtering.DeclareIdent("id", filtering.TypeString),
 		filtering.DeclareIdent("title", filtering.TypeString),
 		filtering.DeclareIdent("content", filtering.TypeString),
 		filtering.DeclareIdent("completed", filtering.TypeBool),
-		filtering.DeclareIdent("create_time", filtering.TypeTimestamp),
-		filtering.DeclareIdent("update_time", filtering.TypeTimestamp),
+		filtering.DeclareIdent("created_at", filtering.TypeTimestamp),
+		filtering.DeclareIdent("updated_at", filtering.TypeTimestamp),
 	)
 	if err != nil {
 		return err
@@ -156,7 +164,7 @@ func (s *TodoService) WatchTodos(req *v1.WatchTodosRequest, stream v1.TodoServic
 	if err != nil {
 		return err
 	}
-	if err := orderBy.ValidateForPaths("id", "title", "create_time", "update_time"); err != nil {
+	if err := orderBy.ValidateForPaths("id", "title", "created_at", "updated_at"); err != nil {
 		return err
 	}
 	if req.PageSize <= 0 {
@@ -172,7 +180,7 @@ func (s *TodoService) WatchTodos(req *v1.WatchTodosRequest, stream v1.TodoServic
 		return err
 	}
 	for _, todo := range todos {
-		if err := stream.Send(newTodoEvent("snapshot", todo)); err != nil {
+		if err := stream.Send(newTodoEvent("snapshot", convertTodoReply(todo))); err != nil {
 			return err
 		}
 	}
@@ -196,7 +204,7 @@ func (s *TodoService) SyncTodos(stream v1.TodoService_SyncTodosServer) error {
 			if err != nil {
 				return err
 			}
-			event = newTodoEvent("created", convertTodo(todo))
+			event = newTodoEvent("created", todo)
 		case "update":
 			todo, err := s.UpdateTodo(stream.Context(), &v1.UpdateTodoRequest{
 				Todo:       req.GetTodo(),
@@ -205,20 +213,21 @@ func (s *TodoService) SyncTodos(stream v1.TodoService_SyncTodosServer) error {
 			if err != nil {
 				return err
 			}
-			event = newTodoEvent("updated", convertTodo(todo))
+			event = newTodoEvent("updated", todo)
 		case "delete":
 			id := req.GetId()
-			if id == 0 {
+			if id == "" {
 				id = req.GetTodo().GetId()
 			}
 			if _, err := s.DeleteTodo(stream.Context(), &v1.DeleteTodoRequest{Id: id}); err != nil {
 				return err
 			}
-			event = &v1.TodoEvent{
-				Action:    "deleted",
-				Todo:      &v1.Todo{Id: id},
-				EventTime: timestamppb.Now(),
-			}
+			// The record is hidden from reads now, so only the id and the
+			// resulting status are meaningful.
+			event = newTodoEvent("deleted", &v1.Todo{
+				Id:     id,
+				Status: v1.TodoStatus_TODO_STATUS_DELETED,
+			})
 		default:
 			return biz.ErrTodoInvalidArgument
 		}
@@ -228,23 +237,42 @@ func (s *TodoService) SyncTodos(stream v1.TodoService_SyncTodosServer) error {
 	}
 }
 
+// parseTodoID validates an incoming todo id at the service boundary.
+func parseTodoID(id string) (uuid.UUID, error) {
+	parsed, err := uuid.Parse(id)
+	if err != nil {
+		return uuid.Nil, biz.ErrTodoInvalidArgument
+	}
+	return parsed, nil
+}
+
+// convertTodo parses an incoming proto into a DO. Timestamps are omitted: they
+// are server-assigned and read-only, so only the mutable fields cross over.
+//
+// The id is left at uuid.Nil when absent or unparseable. Callers that require a
+// real id validate it with parseTodoID first; on the create path no id is
+// supplied and the storage layer assigns one.
 func convertTodo(in *v1.Todo) *biz.Todo {
 	if in == nil {
 		return nil
 	}
+	id, _ := uuid.Parse(in.GetId())
 	return &biz.Todo{
-		ID:        in.GetId(),
+		ID:        id,
 		Title:     in.GetTitle(),
 		Content:   in.GetContent(),
 		Completed: in.GetCompleted(),
 	}
 }
 
-func newTodoEvent(action string, todo *biz.Todo) *v1.TodoEvent {
+// newTodoEvent wraps an outgoing todo in a stream event. It takes the reply
+// shape directly so handlers that already hold one do not round-trip it back
+// through a DO, which would drop the server-assigned timestamps.
+func newTodoEvent(action string, todo *v1.Todo) *v1.TodoEvent {
 	return &v1.TodoEvent{
 		Action:    action,
-		Todo:      convertTodoReply(todo),
-		EventTime: timestamppb.New(time.Now()),
+		Todo:      todo,
+		EventTime: timestamppb.Now(),
 	}
 }
 
@@ -253,11 +281,26 @@ func convertTodoReply(in *biz.Todo) *v1.Todo {
 		return nil
 	}
 	return &v1.Todo{
-		Id:         in.ID,
-		Title:      in.Title,
-		Content:    in.Content,
-		Completed:  in.Completed,
-		CreateTime: timestamppb.New(in.CreateTime),
-		UpdateTime: timestamppb.New(in.UpdateTime),
+		Id:        in.ID.String(),
+		Title:     in.Title,
+		Content:   in.Content,
+		Completed: in.Completed,
+		Status:    convertTodoStatus(in.Status),
+		CreatedAt: timestamppb.New(in.CreatedAt),
+		UpdatedAt: timestamppb.New(in.UpdatedAt),
+	}
+}
+
+// convertTodoStatus maps a domain status onto the api enum. The two share their
+// numeric values, but the mapping is written out so neither side can drift into
+// the other silently.
+func convertTodoStatus(in biz.TodoStatus) v1.TodoStatus {
+	switch in {
+	case biz.TodoStatusActive:
+		return v1.TodoStatus_TODO_STATUS_ACTIVE
+	case biz.TodoStatusDeleted:
+		return v1.TodoStatus_TODO_STATUS_DELETED
+	default:
+		return v1.TodoStatus_TODO_STATUS_UNSPECIFIED
 	}
 }

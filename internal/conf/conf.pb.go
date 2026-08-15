@@ -299,9 +299,16 @@ func (x *Server_GRPC) GetTimeout() *durationpb.Duration {
 }
 
 type Data_Database struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Driver        string                 `protobuf:"bytes,1,opt,name=driver,proto3" json:"driver,omitempty"`
-	Source        string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Driver name registered with database/sql, e.g. "mysql".
+	Driver string `protobuf:"bytes,1,opt,name=driver,proto3" json:"driver,omitempty"`
+	// Driver-specific DSN. Keep credentials out of version control.
+	Source string `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	// Log every generated statement. Development only.
+	Debug bool `protobuf:"varint,3,opt,name=debug,proto3" json:"debug,omitempty"`
+	// Create or update tables from the ent schema on startup. Leave false in
+	// production and apply migrations as a separate, reviewed step.
+	AutoMigrate   bool `protobuf:"varint,4,opt,name=auto_migrate,json=autoMigrate,proto3" json:"auto_migrate,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -348,6 +355,20 @@ func (x *Data_Database) GetSource() string {
 		return x.Source
 	}
 	return ""
+}
+
+func (x *Data_Database) GetDebug() bool {
+	if x != nil {
+		return x.Debug
+	}
+	return false
+}
+
+func (x *Data_Database) GetAutoMigrate() bool {
+	if x != nil {
+		return x.AutoMigrate
+	}
+	return false
 }
 
 type Data_Redis struct {
@@ -437,13 +458,15 @@ const file_conf_conf_proto_rawDesc = "" +
 	"\x04GRPC\x12\x18\n" +
 	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
 	"\x04addr\x18\x02 \x01(\tR\x04addr\x123\n" +
-	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"\xdd\x02\n" +
+	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"\x96\x03\n" +
 	"\x04Data\x125\n" +
 	"\bdatabase\x18\x01 \x01(\v2\x19.kratos.api.Data.DatabaseR\bdatabase\x12,\n" +
-	"\x05redis\x18\x02 \x01(\v2\x16.kratos.api.Data.RedisR\x05redis\x1a:\n" +
+	"\x05redis\x18\x02 \x01(\v2\x16.kratos.api.Data.RedisR\x05redis\x1as\n" +
 	"\bDatabase\x12\x16\n" +
 	"\x06driver\x18\x01 \x01(\tR\x06driver\x12\x16\n" +
-	"\x06source\x18\x02 \x01(\tR\x06source\x1a\xb3\x01\n" +
+	"\x06source\x18\x02 \x01(\tR\x06source\x12\x14\n" +
+	"\x05debug\x18\x03 \x01(\bR\x05debug\x12!\n" +
+	"\fauto_migrate\x18\x04 \x01(\bR\vautoMigrate\x1a\xb3\x01\n" +
 	"\x05Redis\x12\x18\n" +
 	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
 	"\x04addr\x18\x02 \x01(\tR\x04addr\x12<\n" +

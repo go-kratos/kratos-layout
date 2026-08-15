@@ -21,11 +21,11 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	TodoService_CreateTodo_FullMethodName = "/todo.v1.TodoService/CreateTodo"
-	TodoService_GetTodo_FullMethodName    = "/todo.v1.TodoService/GetTodo"
 	TodoService_ListTodos_FullMethodName  = "/todo.v1.TodoService/ListTodos"
+	TodoService_GetTodo_FullMethodName    = "/todo.v1.TodoService/GetTodo"
+	TodoService_WatchTodos_FullMethodName = "/todo.v1.TodoService/WatchTodos"
 	TodoService_UpdateTodo_FullMethodName = "/todo.v1.TodoService/UpdateTodo"
 	TodoService_DeleteTodo_FullMethodName = "/todo.v1.TodoService/DeleteTodo"
-	TodoService_WatchTodos_FullMethodName = "/todo.v1.TodoService/WatchTodos"
 	TodoService_SyncTodos_FullMethodName  = "/todo.v1.TodoService/SyncTodos"
 )
 
@@ -38,29 +38,30 @@ const (
 // together with AIP-style list filtering, ordering, and pagination.
 type TodoServiceClient interface {
 	// CreateTodo creates a new todo item and returns the persisted record
-	// with the server-assigned id, create_time, and update_time populated.
+	// with the server-assigned id, created_at, and updated_at populated.
 	// Returns INVALID_ARGUMENT if the request payload fails validation.
 	CreateTodo(ctx context.Context, in *CreateTodoRequest, opts ...grpc.CallOption) (*Todo, error)
-	// GetTodo returns a single todo item by its id.
-	// Returns NOT_FOUND if no todo exists with the supplied id.
-	GetTodo(ctx context.Context, in *GetTodoRequest, opts ...grpc.CallOption) (*Todo, error)
 	// ListTodos returns a page of todo items, optionally filtered and ordered.
 	// Use the next_page_token from TodoSet to retrieve subsequent pages.
 	// Returns INVALID_ARGUMENT if filter, order_by, or page_token are malformed.
 	ListTodos(ctx context.Context, in *ListTodosRequest, opts ...grpc.CallOption) (*TodoSet, error)
+	// GetTodo returns a single todo item by its id.
+	// Returns NOT_FOUND if no todo exists with the supplied id.
+	GetTodo(ctx context.Context, in *GetTodoRequest, opts ...grpc.CallOption) (*Todo, error)
+	// WatchTodos opens a server-side stream that emits a TodoEvent for every
+	// create, update, or delete that matches the supplied filter and ordering.
+	// The stream remains open until the client cancels or the server terminates it.
+	WatchTodos(ctx context.Context, in *WatchTodosRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TodoEvent], error)
 	// UpdateTodo applies a partial update to an existing todo item using a
 	// FieldMask. Only the fields listed in update_mask are overwritten; all
 	// other fields are left unchanged.
 	// Returns NOT_FOUND if the target todo does not exist, or
 	// INVALID_ARGUMENT if update_mask references unknown fields.
 	UpdateTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*Todo, error)
-	// DeleteTodo permanently removes a todo item by its id.
+	// DeleteTodo soft-deletes a todo item by its id. The record is retained by
+	// the server but no longer appears in GetTodo or ListTodos results.
 	// Returns NOT_FOUND if no todo exists with the supplied id.
 	DeleteTodo(ctx context.Context, in *DeleteTodoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// WatchTodos opens a server-side stream that emits a TodoEvent for every
-	// create, update, or delete that matches the supplied filter and ordering.
-	// The stream remains open until the client cancels or the server terminates it.
-	WatchTodos(ctx context.Context, in *WatchTodosRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TodoEvent], error)
 	// SyncTodos opens a bidirectional stream for two-way synchronization.
 	// The client sends SyncTodoRequest messages describing local changes, and
 	// the server pushes back TodoEvent messages reflecting the resulting state.
@@ -86,16 +87,6 @@ func (c *todoServiceClient) CreateTodo(ctx context.Context, in *CreateTodoReques
 	return out, nil
 }
 
-func (c *todoServiceClient) GetTodo(ctx context.Context, in *GetTodoRequest, opts ...grpc.CallOption) (*Todo, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Todo)
-	err := c.cc.Invoke(ctx, TodoService_GetTodo_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *todoServiceClient) ListTodos(ctx context.Context, in *ListTodosRequest, opts ...grpc.CallOption) (*TodoSet, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TodoSet)
@@ -106,20 +97,10 @@ func (c *todoServiceClient) ListTodos(ctx context.Context, in *ListTodosRequest,
 	return out, nil
 }
 
-func (c *todoServiceClient) UpdateTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*Todo, error) {
+func (c *todoServiceClient) GetTodo(ctx context.Context, in *GetTodoRequest, opts ...grpc.CallOption) (*Todo, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Todo)
-	err := c.cc.Invoke(ctx, TodoService_UpdateTodo_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *todoServiceClient) DeleteTodo(ctx context.Context, in *DeleteTodoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, TodoService_DeleteTodo_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, TodoService_GetTodo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -145,6 +126,26 @@ func (c *todoServiceClient) WatchTodos(ctx context.Context, in *WatchTodosReques
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type TodoService_WatchTodosClient = grpc.ServerStreamingClient[TodoEvent]
 
+func (c *todoServiceClient) UpdateTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*Todo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Todo)
+	err := c.cc.Invoke(ctx, TodoService_UpdateTodo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoServiceClient) DeleteTodo(ctx context.Context, in *DeleteTodoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, TodoService_DeleteTodo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *todoServiceClient) SyncTodos(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[SyncTodoRequest, TodoEvent], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &TodoService_ServiceDesc.Streams[1], TodoService_SyncTodos_FullMethodName, cOpts...)
@@ -167,29 +168,30 @@ type TodoService_SyncTodosClient = grpc.BidiStreamingClient[SyncTodoRequest, Tod
 // together with AIP-style list filtering, ordering, and pagination.
 type TodoServiceServer interface {
 	// CreateTodo creates a new todo item and returns the persisted record
-	// with the server-assigned id, create_time, and update_time populated.
+	// with the server-assigned id, created_at, and updated_at populated.
 	// Returns INVALID_ARGUMENT if the request payload fails validation.
 	CreateTodo(context.Context, *CreateTodoRequest) (*Todo, error)
-	// GetTodo returns a single todo item by its id.
-	// Returns NOT_FOUND if no todo exists with the supplied id.
-	GetTodo(context.Context, *GetTodoRequest) (*Todo, error)
 	// ListTodos returns a page of todo items, optionally filtered and ordered.
 	// Use the next_page_token from TodoSet to retrieve subsequent pages.
 	// Returns INVALID_ARGUMENT if filter, order_by, or page_token are malformed.
 	ListTodos(context.Context, *ListTodosRequest) (*TodoSet, error)
+	// GetTodo returns a single todo item by its id.
+	// Returns NOT_FOUND if no todo exists with the supplied id.
+	GetTodo(context.Context, *GetTodoRequest) (*Todo, error)
+	// WatchTodos opens a server-side stream that emits a TodoEvent for every
+	// create, update, or delete that matches the supplied filter and ordering.
+	// The stream remains open until the client cancels or the server terminates it.
+	WatchTodos(*WatchTodosRequest, grpc.ServerStreamingServer[TodoEvent]) error
 	// UpdateTodo applies a partial update to an existing todo item using a
 	// FieldMask. Only the fields listed in update_mask are overwritten; all
 	// other fields are left unchanged.
 	// Returns NOT_FOUND if the target todo does not exist, or
 	// INVALID_ARGUMENT if update_mask references unknown fields.
 	UpdateTodo(context.Context, *UpdateTodoRequest) (*Todo, error)
-	// DeleteTodo permanently removes a todo item by its id.
+	// DeleteTodo soft-deletes a todo item by its id. The record is retained by
+	// the server but no longer appears in GetTodo or ListTodos results.
 	// Returns NOT_FOUND if no todo exists with the supplied id.
 	DeleteTodo(context.Context, *DeleteTodoRequest) (*emptypb.Empty, error)
-	// WatchTodos opens a server-side stream that emits a TodoEvent for every
-	// create, update, or delete that matches the supplied filter and ordering.
-	// The stream remains open until the client cancels or the server terminates it.
-	WatchTodos(*WatchTodosRequest, grpc.ServerStreamingServer[TodoEvent]) error
 	// SyncTodos opens a bidirectional stream for two-way synchronization.
 	// The client sends SyncTodoRequest messages describing local changes, and
 	// the server pushes back TodoEvent messages reflecting the resulting state.
@@ -208,20 +210,20 @@ type UnimplementedTodoServiceServer struct{}
 func (UnimplementedTodoServiceServer) CreateTodo(context.Context, *CreateTodoRequest) (*Todo, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateTodo not implemented")
 }
+func (UnimplementedTodoServiceServer) ListTodos(context.Context, *ListTodosRequest) (*TodoSet, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListTodos not implemented")
+}
 func (UnimplementedTodoServiceServer) GetTodo(context.Context, *GetTodoRequest) (*Todo, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTodo not implemented")
 }
-func (UnimplementedTodoServiceServer) ListTodos(context.Context, *ListTodosRequest) (*TodoSet, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListTodos not implemented")
+func (UnimplementedTodoServiceServer) WatchTodos(*WatchTodosRequest, grpc.ServerStreamingServer[TodoEvent]) error {
+	return status.Error(codes.Unimplemented, "method WatchTodos not implemented")
 }
 func (UnimplementedTodoServiceServer) UpdateTodo(context.Context, *UpdateTodoRequest) (*Todo, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateTodo not implemented")
 }
 func (UnimplementedTodoServiceServer) DeleteTodo(context.Context, *DeleteTodoRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteTodo not implemented")
-}
-func (UnimplementedTodoServiceServer) WatchTodos(*WatchTodosRequest, grpc.ServerStreamingServer[TodoEvent]) error {
-	return status.Error(codes.Unimplemented, "method WatchTodos not implemented")
 }
 func (UnimplementedTodoServiceServer) SyncTodos(grpc.BidiStreamingServer[SyncTodoRequest, TodoEvent]) error {
 	return status.Error(codes.Unimplemented, "method SyncTodos not implemented")
@@ -265,6 +267,24 @@ func _TodoService_CreateTodo_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TodoService_ListTodos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListTodosRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServiceServer).ListTodos(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TodoService_ListTodos_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServiceServer).ListTodos(ctx, req.(*ListTodosRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TodoService_GetTodo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetTodoRequest)
 	if err := dec(in); err != nil {
@@ -283,23 +303,16 @@ func _TodoService_GetTodo_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TodoService_ListTodos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListTodosRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _TodoService_WatchTodos_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(WatchTodosRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(TodoServiceServer).ListTodos(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TodoService_ListTodos_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TodoServiceServer).ListTodos(ctx, req.(*ListTodosRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(TodoServiceServer).WatchTodos(m, &grpc.GenericServerStream[WatchTodosRequest, TodoEvent]{ServerStream: stream})
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type TodoService_WatchTodosServer = grpc.ServerStreamingServer[TodoEvent]
 
 func _TodoService_UpdateTodo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateTodoRequest)
@@ -337,17 +350,6 @@ func _TodoService_DeleteTodo_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TodoService_WatchTodos_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(WatchTodosRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(TodoServiceServer).WatchTodos(m, &grpc.GenericServerStream[WatchTodosRequest, TodoEvent]{ServerStream: stream})
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type TodoService_WatchTodosServer = grpc.ServerStreamingServer[TodoEvent]
-
 func _TodoService_SyncTodos_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(TodoServiceServer).SyncTodos(&grpc.GenericServerStream[SyncTodoRequest, TodoEvent]{ServerStream: stream})
 }
@@ -367,12 +369,12 @@ var TodoService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TodoService_CreateTodo_Handler,
 		},
 		{
-			MethodName: "GetTodo",
-			Handler:    _TodoService_GetTodo_Handler,
-		},
-		{
 			MethodName: "ListTodos",
 			Handler:    _TodoService_ListTodos_Handler,
+		},
+		{
+			MethodName: "GetTodo",
+			Handler:    _TodoService_GetTodo_Handler,
 		},
 		{
 			MethodName: "UpdateTodo",
