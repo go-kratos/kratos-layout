@@ -27,6 +27,15 @@ service TodoService {
     };
   }
 
+  // ListTodos returns a page of todo items, optionally filtered and ordered.
+  // Use the next_page_token from TodoSet to retrieve subsequent pages.
+  // Returns INVALID_ARGUMENT if filter, order_by, or page_token are malformed.
+  rpc ListTodos (ListTodosRequest) returns (TodoSet) {
+    option (google.api.http) = {
+      get: "/v1/todos/list"
+    };
+  }
+
   // GetTodo returns a single todo item by its id.
   // Returns NOT_FOUND if no todo exists with the supplied id.
   rpc GetTodo (GetTodoRequest) returns (Todo) {
@@ -35,12 +44,12 @@ service TodoService {
     };
   }
 
-  // ListTodos returns a page of todo items, optionally filtered and ordered.
-  // Use the next_page_token from TodoSet to retrieve subsequent pages.
-  // Returns INVALID_ARGUMENT if filter, order_by, or page_token are malformed.
-  rpc ListTodos (ListTodosRequest) returns (TodoSet) {
+  // WatchTodos opens a server-side stream that emits a TodoEvent for every
+  // create, update, or delete that matches the supplied filter and ordering.
+  // The stream remains open until the client cancels or the server terminates it.
+  rpc WatchTodos (WatchTodosRequest) returns (stream TodoEvent) {
     option (google.api.http) = {
-      get: "/v1/todos/list"
+      get: "/v1/todos/watch"
     };
   }
 
@@ -62,15 +71,6 @@ service TodoService {
   rpc DeleteTodo (DeleteTodoRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/todos/{id}"
-    };
-  }
-
-  // WatchTodos opens a server-side stream that emits a TodoEvent for every
-  // create, update, or delete that matches the supplied filter and ordering.
-  // The stream remains open until the client cancels or the server terminates it.
-  rpc WatchTodos (WatchTodosRequest) returns (stream TodoEvent) {
-    option (google.api.http) = {
-      get: "/v1/todos/watch"
     };
   }
 

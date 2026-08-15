@@ -724,15 +724,15 @@ const file_todo_v1_todo_proto_rawDesc = "" +
 	"event_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\teventTime2\xe9\x04\n" +
 	"\vTodoService\x12W\n" +
 	"\n" +
-	"CreateTodo\x12\x1a.todo.v1.CreateTodoRequest\x1a\r.todo.v1.Todo\"\x1e\x82\xd3\xe4\x93\x02\x18:\x04todo\"\x10/v1/todos/create\x12I\n" +
-	"\aGetTodo\x12\x17.todo.v1.GetTodoRequest\x1a\r.todo.v1.Todo\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/todos/{id}\x12P\n" +
-	"\tListTodos\x12\x19.todo.v1.ListTodosRequest\x1a\x10.todo.v1.TodoSet\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/todos/list\x12W\n" +
+	"CreateTodo\x12\x1a.todo.v1.CreateTodoRequest\x1a\r.todo.v1.Todo\"\x1e\x82\xd3\xe4\x93\x02\x18:\x04todo\"\x10/v1/todos/create\x12P\n" +
+	"\tListTodos\x12\x19.todo.v1.ListTodosRequest\x1a\x10.todo.v1.TodoSet\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/todos/list\x12I\n" +
+	"\aGetTodo\x12\x17.todo.v1.GetTodoRequest\x1a\r.todo.v1.Todo\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/todos/{id}\x12W\n" +
+	"\n" +
+	"WatchTodos\x12\x1a.todo.v1.WatchTodosRequest\x1a\x12.todo.v1.TodoEvent\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/todos/watch0\x01\x12W\n" +
 	"\n" +
 	"UpdateTodo\x12\x1a.todo.v1.UpdateTodoRequest\x1a\r.todo.v1.Todo\"\x1e\x82\xd3\xe4\x93\x02\x18:\x04todo\x1a\x10/v1/todos/update\x12X\n" +
 	"\n" +
-	"DeleteTodo\x12\x1a.todo.v1.DeleteTodoRequest\x1a\x16.google.protobuf.Empty\"\x16\x82\xd3\xe4\x93\x02\x10*\x0e/v1/todos/{id}\x12W\n" +
-	"\n" +
-	"WatchTodos\x12\x1a.todo.v1.WatchTodosRequest\x1a\x12.todo.v1.TodoEvent\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/todos/watch0\x01\x12X\n" +
+	"DeleteTodo\x12\x1a.todo.v1.DeleteTodoRequest\x1a\x16.google.protobuf.Empty\"\x16\x82\xd3\xe4\x93\x02\x10*\x0e/v1/todos/{id}\x12X\n" +
 	"\tSyncTodos\x12\x18.todo.v1.SyncTodoRequest\x1a\x12.todo.v1.TodoEvent\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/todos/sync(\x010\x01BZ\n" +
 	"\x18io.grpc.examples.todo.v1B\tTodoProtoP\x01Z1github.com/go-kratos/kratos-layout/api/todo/v1;v1b\x06proto3"
 
@@ -776,18 +776,18 @@ var file_todo_v1_todo_proto_depIdxs = []int32{
 	0,  // 8: todo.v1.TodoEvent.todo:type_name -> todo.v1.Todo
 	10, // 9: todo.v1.TodoEvent.event_time:type_name -> google.protobuf.Timestamp
 	2,  // 10: todo.v1.TodoService.CreateTodo:input_type -> todo.v1.CreateTodoRequest
-	3,  // 11: todo.v1.TodoService.GetTodo:input_type -> todo.v1.GetTodoRequest
-	4,  // 12: todo.v1.TodoService.ListTodos:input_type -> todo.v1.ListTodosRequest
-	5,  // 13: todo.v1.TodoService.UpdateTodo:input_type -> todo.v1.UpdateTodoRequest
-	6,  // 14: todo.v1.TodoService.DeleteTodo:input_type -> todo.v1.DeleteTodoRequest
-	7,  // 15: todo.v1.TodoService.WatchTodos:input_type -> todo.v1.WatchTodosRequest
+	4,  // 11: todo.v1.TodoService.ListTodos:input_type -> todo.v1.ListTodosRequest
+	3,  // 12: todo.v1.TodoService.GetTodo:input_type -> todo.v1.GetTodoRequest
+	7,  // 13: todo.v1.TodoService.WatchTodos:input_type -> todo.v1.WatchTodosRequest
+	5,  // 14: todo.v1.TodoService.UpdateTodo:input_type -> todo.v1.UpdateTodoRequest
+	6,  // 15: todo.v1.TodoService.DeleteTodo:input_type -> todo.v1.DeleteTodoRequest
 	8,  // 16: todo.v1.TodoService.SyncTodos:input_type -> todo.v1.SyncTodoRequest
 	0,  // 17: todo.v1.TodoService.CreateTodo:output_type -> todo.v1.Todo
-	0,  // 18: todo.v1.TodoService.GetTodo:output_type -> todo.v1.Todo
-	1,  // 19: todo.v1.TodoService.ListTodos:output_type -> todo.v1.TodoSet
-	0,  // 20: todo.v1.TodoService.UpdateTodo:output_type -> todo.v1.Todo
-	12, // 21: todo.v1.TodoService.DeleteTodo:output_type -> google.protobuf.Empty
-	9,  // 22: todo.v1.TodoService.WatchTodos:output_type -> todo.v1.TodoEvent
+	1,  // 18: todo.v1.TodoService.ListTodos:output_type -> todo.v1.TodoSet
+	0,  // 19: todo.v1.TodoService.GetTodo:output_type -> todo.v1.Todo
+	9,  // 20: todo.v1.TodoService.WatchTodos:output_type -> todo.v1.TodoEvent
+	0,  // 21: todo.v1.TodoService.UpdateTodo:output_type -> todo.v1.Todo
+	12, // 22: todo.v1.TodoService.DeleteTodo:output_type -> google.protobuf.Empty
 	9,  // 23: todo.v1.TodoService.SyncTodos:output_type -> todo.v1.TodoEvent
 	17, // [17:24] is the sub-list for method output_type
 	10, // [10:17] is the sub-list for method input_type
