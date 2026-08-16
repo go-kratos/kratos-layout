@@ -21,17 +21,17 @@ type Data struct {
 
 // NewData opens the database client and returns it with a cleanup function.
 func NewData(c *conf.Data) (*Data, func(), error) {
-	database := c.GetDatabase()
-	db, err := ent.Open(database.GetDriver(), database.GetSource())
+	dc := c.GetDatabase()
+	db, err := ent.Open(dc.GetDriver(), dc.GetSource())
 	if err != nil {
 		return nil, nil, err
 	}
-	if database.GetDebug() {
+	if dc.GetDebug() {
 		db = db.Debug()
 	}
 	// Auto migration is a convenience for local development. In production,
 	// apply schema changes as a separate reviewed step instead.
-	if database.GetAutoMigrate() {
+	if dc.GetAutoMigrate() {
 		if err := db.Schema.Create(context.Background()); err != nil {
 			db.Close()
 			return nil, nil, err
