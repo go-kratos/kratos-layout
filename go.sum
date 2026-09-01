@@ -29,8 +29,8 @@ github.com/envoyproxy/protoc-gen-validate v1.3.3 h1:MVQghNeW+LZcmXe7SY1V36Z+WFMD
 github.com/envoyproxy/protoc-gen-validate v1.3.3/go.mod h1:TsndJ/ngyIdQRhMcVVGDDHINPLWB7C82oDArY51KfB0=
 github.com/fsnotify/fsnotify v1.10.1 h1:b0/UzAf9yR5rhf3RPm9gf3ehBPpf0oZKIjtpKrx59Ho=
 github.com/fsnotify/fsnotify v1.10.1/go.mod h1:TLheqan6HD6GBK6PrDWyDPBaEV8LspOxvPSjC+bVfgo=
-github.com/go-kratos/aip-go/ents v0.0.0-20260815143928-41e753c0455d h1:HSCaBGn4mDVFOtB8sEKFBWHiLxSFSeQECADgi4fREJE=
-github.com/go-kratos/aip-go/ents v0.0.0-20260815143928-41e753c0455d/go.mod h1:ifKMm4eJmaQz5WNKKhfClpCng8UxUB3sArof8wjwG78=
+github.com/go-kratos/aip-go/ents v0.0.0-20260901003907-1ab5471e605b h1:ulDN7Axly2Mnr/6trdyzhvcvype1tuL/lUSjsKWBn24=
+github.com/go-kratos/aip-go/ents v0.0.0-20260901003907-1ab5471e605b/go.mod h1:ifKMm4eJmaQz5WNKKhfClpCng8UxUB3sArof8wjwG78=
 github.com/go-kratos/kratos/contrib/otel/v3 v3.0.0-20260515082355-1ddb58e407c5 h1:FvzV+f61/k8ovG+ezFkF8S5rO3lNXKhYtmhaE91BIzg=
 github.com/go-kratos/kratos/contrib/otel/v3 v3.0.0-20260515082355-1ddb58e407c5/go.mod h1:hT2QNZ/0DPOvRqVqxoBBL/aMCOHhbbWh92mF87DBiCU=
 github.com/go-kratos/kratos/v3 v3.0.0 h1:dCXqKoeo2Bo9jgC72YfuwJ3g7bPCkHeVeNGyZQ51bLE=

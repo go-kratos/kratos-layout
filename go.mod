@@ -4,7 +4,7 @@ go 1.25.7
 
 require (
 	entgo.io/ent v0.14.6
-	github.com/go-kratos/aip-go/ents v0.0.0-20260815143928-41e753c0455d
+	github.com/go-kratos/aip-go/ents v0.0.0-20260901003907-1ab5471e605b
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/google/wire v0.6.0
 	go.einride.tech/aip v0.86.3
